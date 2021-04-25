@@ -4,7 +4,7 @@
 using namespace std;
 
 //size of matrix
-#define N 2
+#define N 4
 #define M 4
 #define L 4
 
@@ -17,7 +17,7 @@ int** matr(int n, int m)
 
 	for (int i = 0; i < n; i++)
 		for (int j = 0; j < m; j++)
-			matr[i][j] = 5;
+			matr[i][j] = 2;
 
 	return matr;
 }
@@ -64,7 +64,7 @@ void tape(int** A, int** B, int n, int m, int l)
 	omp_set_num_threads(threadNum);
 
 	double t1 = omp_get_wtime();
-#pragma omp parallel shared(A,B,mi,C) private(i,j,k)
+#pragma omp parallel num_threads(4) shared(A,B,mi,C) private(i,j,k)
 	{
 		int numTread = omp_get_thread_num();
 		for (i = 0; i < mi; i++)
@@ -98,7 +98,7 @@ void block(int** A, int** B, int n, int m, int l)
 		int numThread = omp_get_thread_num();
 		int indStr = numThread / 2;
 		int indStlb = numThread % 2;
-		for (i = 0; i < ni; i++)
+		/*for (i = 0; i < ni; i++)
 		{
 			for (j = 0; j < li; j++)
 			{
@@ -106,7 +106,8 @@ void block(int** A, int** B, int n, int m, int l)
 				for (k = 0; k < mi; k++)
 					C[i + indStr * ni][j + indStlb * li] += A[i + indStr * ni][k + indStlb * mi] * B[k + indStr * mi][j + indStlb * li];
 			}
-		}
+		}*/
+		
 	}
 	double t2 = omp_get_wtime();
 	cout << "time block: " << t2 - t1 << endl;
@@ -119,10 +120,18 @@ void main()
 	cout << omp_get_max_threads() << endl;
 	int** A = matr(N, M);
 	int** B = matr(M, L);
-	
+
 	tape(A, B, N, M, L);
 	linear(A, B, N, M, L);
 	block(A, B, N, M, L);
+
+	cout << endl << endl << endl;
+#pragma omp parallel
+	{
+#pragma omp for
+		for (int i = 0; i < 8; i++)
+			cout << omp_get_thread_num() << endl;
+	}
 
 	system("pause");
 }
