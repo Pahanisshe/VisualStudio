@@ -1,0 +1,11 @@
+C:\Users\zubko\source\repos\ТеорВер\ТеорВер\bin\Debug\ТеорВер.exe.config
+C:\Users\zubko\source\repos\ТеорВер\ТеорВер\bin\Debug\ТеорВер.exe
+C:\Users\zubko\source\repos\ТеорВер\ТеорВер\bin\Debug\ТеорВер.pdb
+C:\Users\zubko\source\repos\ТеорВер\ТеорВер\obj\Debug\ТеорВер.csprojAssemblyReference.cache
+C:\Users\zubko\source\repos\ТеорВер\ТеорВер\obj\Debug\ТеорВер.ProbabilityTheoryTest.resources
+C:\Users\zubko\source\repos\ТеорВер\ТеорВер\obj\Debug\ТеорВер.Properties.Resources.resources
+C:\Users\zubko\source\repos\ТеорВер\ТеорВер\obj\Debug\ТеорВер.csproj.GenerateResource.cache
+C:\Users\zubko\source\repos\ТеорВер\ТеорВер\obj\Debug\ТеорВер.csproj.CoreCompileInputs.cache
+C:\Users\zubko\source\repos\ТеорВер\ТеорВер\obj\Debug\ТеорВер.exe
+C:\Users\zubko\source\repos\ТеорВер\ТеорВер\obj\Debug\ТеорВер.pdb
+C:\Users\zubko\source\repos\ТеорВер\ТеорВер\obj\Debug\ТеорВер.Test.resources
