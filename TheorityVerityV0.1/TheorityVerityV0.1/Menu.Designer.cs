@@ -35,18 +35,19 @@ namespace TheorityVerityV0._1
             // 
             // makeTest
             // 
-            this.makeTest.Location = new System.Drawing.Point(276, 128);
+            this.makeTest.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F);
+            this.makeTest.Location = new System.Drawing.Point(12, 33);
             this.makeTest.Name = "makeTest";
             this.makeTest.Size = new System.Drawing.Size(190, 134);
             this.makeTest.TabIndex = 0;
-            this.makeTest.Text = "makeTest";
+            this.makeTest.Text = "Сделайте мне Тест, пожалуйста";
             this.makeTest.UseVisualStyleBackColor = true;
             this.makeTest.Click += new System.EventHandler(this.makeTest_Click);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(342, 62);
+            this.label1.Location = new System.Drawing.Point(73, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(74, 13);
             this.label1.TabIndex = 1;
@@ -56,10 +57,13 @@ namespace TheorityVerityV0._1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(218, 179);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.makeTest);
+            this.MaximumSize = new System.Drawing.Size(234, 218);
+            this.MinimumSize = new System.Drawing.Size(234, 218);
             this.Name = "Menu";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Menu";
             this.ResumeLayout(false);
             this.PerformLayout();

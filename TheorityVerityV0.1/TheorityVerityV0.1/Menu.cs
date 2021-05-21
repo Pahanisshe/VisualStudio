@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using word = Microsoft.Office.Interop.Word;
+using System.Threading;
 
 namespace TheorityVerityV0._1
 {
@@ -21,26 +22,96 @@ namespace TheorityVerityV0._1
 
         private void makeTest_Click(object sender, EventArgs e)
         {
-            var app = new word.Application();
-            app.Visible = true;
-            var document = app.Documents.Add();
-            var range = document.Range();
-            document.Content.ParagraphFormat.Alignment = word.WdParagraphAlignment.wdAlignParagraphCenter;
-            range.Bold = 1; // Жирность: 1 - да, 0 - нет (св-во)
-            range.Text = "Тест по теории вероятностей";
-            range.Bold = 0;
-            range.Text += "Вариант:";
+            word.Document document = null;
+            try
+            {
+                var app = new word.Application();
+                app.Visible = true;
+                document = app.Documents.Add();
+                
+                Microsoft.Office.Interop.Word.Paragraph wordParag;
+                // первый параграф
+                wordParag = document.Paragraphs.Add(Type.Missing);
+                wordParag.Range.Font.Name = "Times New Roman";
+                wordParag.Range.Font.Size = 16;
+                wordParag.Range.Font.Bold = 1;
+                wordParag.Range.Text = "Тест по теории вероятностей";
+                wordParag.Range.Paragraphs.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphCenter;
 
-            AddTestToFile(range);
+                // Второй параграф
+                document.Paragraphs.Add(Type.Missing);
+                wordParag.Range.Font.Name = "Times New Roman";
+                wordParag.Range.Font.Size = 16;
+                wordParag.Range.Font.Bold = 0;
+                wordParag.Range.Text = "Вариант";
+                wordParag.Range.Paragraphs.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphCenter;
+
+                // Третий параграф
+                document.Paragraphs.Add(Type.Missing);
+                wordParag.Range.Font.Name = "Times New Roman";
+                wordParag.Range.Font.Size = 14;
+                wordParag.Range.Font.Bold = 0;
+                wordParag.Range.Paragraphs.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphLeft;
+
+                AddTestToFile(wordParag);
+                
+            }
+            catch (Exception Ex)
+            {
+                document.Close();
+                document = null;
+                Console.WriteLine("Во время выполнения произошла ошибка!");
+                Console.ReadLine();
+            }
 
             // range.Delete();
             GC.Collect();
         }
 
-        private void AddTestToFile(word.Range range)
+        private void AddTestToFile(Microsoft.Office.Interop.Word.Paragraph wordParag)
         {
-            range.Text += "GER";
+            MakeTest test = new MakeTest();
+            
+            // int countTasks = 4;
+            int countThemes = 2;
+            string currentAnswers = "";
+            string[] question = new string[4];
+            for (int i = 0; i < countThemes; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    question = GetQuestion(i, test.Test[i][j]);
+                    currentAnswers += question[5];    // ответ запихнули
+                    AddTask(wordParag, question, i * 2 + j + 1);
+                }
+            }
+
+            wordParag.Range.Text += "\nТРУ ОТВЕТЫ ИНФА СОТКА: " + currentAnswers;
+            
         }
+
+        private void AddTask(Microsoft.Office.Interop.Word.Paragraph wordParag, string[] question, int numberTask)
+        {
+            wordParag.Range.Text += $"({numberTask}) " + question[0];
+            for (int i = 1; i < 5; i++)
+                wordParag.Range.Text += $"{i}) " + question[i];
+            wordParag.Range.Text += "";
+        }
+
+        private string[] GetQuestion(int numberFile, int numberQuestion)
+        {
+            string[] question = new string [6];
+            string nameFile = numberFile + ".txt";
+            StreamReader fsr = new StreamReader(nameFile);
+            for (int i = 1; i < numberQuestion; i++)
+                for (int j = 0; j < 7; j++)
+                    fsr.ReadLine();
+            for (int i = 0; i < 6; i++)
+                question[i] = fsr.ReadLine();
+            return question;
+        }
+
+        
     }
 
     public class MakeTest
@@ -66,7 +137,7 @@ namespace TheorityVerityV0._1
                 for (int j = 0; j < 2; j++)
                     Test[i].Add(combObj.CombObject[j]);
             }
-            print();
+            //print();
         }
 
         public void print()
