@@ -23,55 +23,61 @@ namespace TheorityVerityV0._1
 
         private void makeTest_Click(object sender, EventArgs e)
         {
-            if (countOfVariants.Value != 0)
+            word.Document document = null;
+            try
             {
-                progressBar1.Maximum = Convert.ToInt32(countOfVariants.Value);
-                progressBar1.Value = 0;
-                progressBar1.Visible = true;
-                waitLabel.Text = "Пожалуйста, подождите...";
-                word.Document document = null;
-                try
-                {
-                    var app = new word.Application();
-                    //ClearMemory form1 = new ClearMemory();
-                    //form1.Show();
-                    
-                    document = app.Documents.Add();
-                    document.Application.Selection.PageSetup.LeftMargin = 20F;    // левое поле
-                    document.Application.Selection.PageSetup.RightMargin = 20F;   // правое поле
-                    document.Application.Selection.PageSetup.TopMargin = 20F;     // верхнее поле
-                    document.Application.Selection.PageSetup.BottomMargin = 20F;  // нижнее поле 
+                var app = new word.Application();
+                app.Visible = true;
+                document = app.Documents.Add();
+                document.Application.Selection.PageSetup.LeftMargin = 20F;    // левое поле
+                document.Application.Selection.PageSetup.RightMargin = 20F;   // правое поле
+                document.Application.Selection.PageSetup.TopMargin = 20F;     // верхнее поле
+                document.Application.Selection.PageSetup.BottomMargin = 20F;  // нижнее поле 
 
-                    AddTestToFile(document);
+                word.Paragraph wordParag;
+                // первый параграф
+                wordParag = document.Paragraphs.Add(Type.Missing);
+                wordParag.Range.Font.Name = "Times New Roman";
+                wordParag.Range.Font.Size = 16;
+                wordParag.Range.Font.Bold = 1;
+                wordParag.Range.Text = "Тест по теории вероятностей";
+                wordParag.Range.Paragraphs.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphCenter;
 
-                    app.Visible = true;
-                    waitLabel.Text = "";
-                    progressBar1.Value = 0;
-                    progressBar1.Visible = false;
-                    //AddPicToFile(wordParag, document);
-                }
-                catch (Exception Ex)
-                {
-                    //document.Close();
-                    document = null;
-                    Console.WriteLine("Во время выполнения произошла ошибка!");
-                    Console.ReadLine();
-                }
+                // Второй параграф
+                document.Paragraphs.Add(Type.Missing);
+                wordParag.Range.Font.Name = "Times New Roman";
+                wordParag.Range.Font.Size = 16;
+                wordParag.Range.Font.Bold = 0;
+                wordParag.Range.Text = "Вариант";
+                wordParag.Range.Paragraphs.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphCenter;
 
-                // range.Delete();
-                
+                // Третий параграф
+                document.Paragraphs.Add(Type.Missing);
+                wordParag.Range.ParagraphFormat.SpaceAfter = 0;  // интервал после
+                wordParag.Range.Font.Name = "Times New Roman";
+                wordParag.Range.Font.Size = 12;
+                wordParag.Range.Font.Bold = 0;
+                wordParag.Range.Paragraphs.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphLeft;
+
+                AddTestToFile(wordParag, document);
+
+                //AddPicToFile(wordParag, document);
             }
-            else
-                MessageBox.Show("0 вариантов, серьезно?\n\nТакое я делать не буду)", "Ну и ну!");
+            catch (Exception Ex)
+            {
+                //document.Close();
+                document = null;
+                Console.WriteLine("Во время выполнения произошла ошибка!");
+                Console.ReadLine();
+            }
 
-            
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+            // range.Delete();
             GC.Collect();
         }
 
         // рабочий метод вставки картинки в таблицу, которая вставляется в параграф wordParag документа document
         // i - номер картинки (п\п)
+        // вызывается в AddTask если есть в строке Ответа подстрока pics (т.е. обращение к файлу картинки - примеры см в debug)
         private void AddPicToFile(Microsoft.Office.Interop.Word.Paragraph wordParag, word.Document document, string smallPath, int  i)
         {
             // добавляем таблицу в параграф
@@ -96,59 +102,26 @@ namespace TheorityVerityV0._1
             rngPic.InlineShapes.AddPicture(filePathPic1, ref missing, ref missing, ref missing);
         }
 
-        private void AddTestToFile(word.Document document)
+        private void AddTestToFile(Microsoft.Office.Interop.Word.Paragraph wordParag, word.Document document)
         {
-            word.Paragraph wordParag = document.Paragraphs.Add(Type.Missing);
-            string[] currentAnswers = new string[Convert.ToInt32(countOfVariants.Value)];
-            for (int j = 0; j < countOfVariants.Value; j++)
+            MakeTest test = new MakeTest();
+            
+            // int countTasks = 4;
+            int countThemes = 2;
+            string currentAnswers = "";
+            string[] question = new string[4];
+            for (int i = 0; i < countThemes; i++)
             {
-                progressBar1.Value += 1;
-                // первый параграф
-                //document.Paragraphs.Add(Type.Missing);
-                wordParag.Range.Font.Name = "Times New Roman";
-                wordParag.Range.Font.Size = 16;
-                wordParag.Range.Font.Bold = 1;
-                wordParag.Range.Text = "Тест по теории вероятностей";
-                wordParag.Range.Paragraphs.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphCenter;
-
-                // Второй параграф
-                document.Paragraphs.Add(Type.Missing);
-                wordParag.Range.Font.Name = "Times New Roman";
-                wordParag.Range.Font.Size = 16;
-                wordParag.Range.Font.Bold = 0;
-                wordParag.Range.Text = "Вариант" + $" {j+1}";
-                wordParag.Range.Paragraphs.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphCenter;
-
-                // Третий параграф
-                document.Paragraphs.Add(Type.Missing);
-                wordParag.Range.ParagraphFormat.SpaceAfter = 0;  // интервал после
-                wordParag.Range.Font.Name = "Times New Roman";
-                wordParag.Range.Font.Size = 12;
-                wordParag.Range.Font.Bold = 0;
-                wordParag.Range.Paragraphs.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphLeft;
-
-                MakeTest test = new MakeTest();
-
-                // КОЛИЧЕСТВО ТЕМ
-                int countThemes = 6;
-                // КОЛИЧЕСТВО ТЕМ
-                currentAnswers[j] = "";
-                string[] question = new string[4];
-                for (int i = 0; i < countThemes; i++)
+                for (int j = 0; j < 2; j++)
                 {
-                    question = GetQuestion(i, test.Test[i][0]);
-                    currentAnswers[j] += $"{i + 1}) " + question[5] + "; ";    // ответ запихнули
-                    AddTask(wordParag, question, i + 1, document);
+                    question = GetQuestion(i, test.Test[i][j]);
+                    currentAnswers += $"{i * 2 + j + 1}) " + question[5] + "; ";    // ответ запихнули
+                    AddTask(wordParag, question, i * 2 + j + 1, document);
                 }
-
-                
             }
 
-            wordParag.Range.Text += "\n ОТВЕТЫ:";
-            for (int j = 0; j < countOfVariants.Value; j++)
-                wordParag.Range.Text += $"{j+1} вариант: " + currentAnswers[j];
+            wordParag.Range.Text += "\nОтветы: " + currentAnswers;
             
-            GC.Collect();
         }
 
         private void AddTask(Microsoft.Office.Interop.Word.Paragraph wordParag, string[] question, int numberTask, word.Document document)
@@ -204,7 +177,7 @@ namespace TheorityVerityV0._1
         private string[] GetQuestion(int numberFile, int numberQuestion)
         {
             string[] question = new string [6];
-            string nameFile = "tasks\\" + numberFile + ".txt";
+            string nameFile = numberFile + ".txt";
             StreamReader fsr = new StreamReader(nameFile);
             for (int i = 1; i < numberQuestion; i++)
                 for (int j = 0; j < 7; j++)
@@ -212,82 +185,6 @@ namespace TheorityVerityV0._1
             for (int i = 0; i < 6; i++)
                 question[i] = fsr.ReadLine();
             return question;
-        }
-
-        // кнопка вывода всех заданий с ответами в 1 файл
-        private void makeFileWithAllTasks_Click(object sender, EventArgs e)
-        {
-            word.Document document = null;
-            try
-            {
-                // КОЛИЧЕСТВО ТЕМ
-                int countThemes = 6;
-                // КОЛИЧЕСТВО ТЕМ
-
-                progressBar1.Maximum = countThemes;
-                progressBar1.Value = 0;
-                progressBar1.Visible = true;
-                waitLabel.Text = "Пожалуйста, подождите...";
-                var app = new word.Application();
-                //ClearMemory form1 = new ClearMemory();
-                //form1.Show();
-                
-                document = app.Documents.Add();
-                document.Application.Selection.PageSetup.LeftMargin = 20F;    // левое поле
-                document.Application.Selection.PageSetup.RightMargin = 20F;   // правое поле
-                document.Application.Selection.PageSetup.TopMargin = 20F;     // верхнее поле
-                document.Application.Selection.PageSetup.BottomMargin = 20F;  // нижнее поле 
-
-                word.Paragraph wordParag;
-                // первый параграф
-                wordParag = document.Paragraphs.Add(Type.Missing);
-                wordParag.Range.Font.Name = "Times New Roman";
-                wordParag.Range.Font.Size = 16;
-                wordParag.Range.Font.Bold = 1;
-                wordParag.Range.Text = "Все вопросы к тесту по теории вероятностей";
-                wordParag.Range.Paragraphs.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphCenter;
-
-                // Третий параграф
-                document.Paragraphs.Add(Type.Missing);
-                wordParag.Range.ParagraphFormat.SpaceAfter = 0;  // интервал после
-                wordParag.Range.Font.Name = "Times New Roman";
-                wordParag.Range.Font.Size = 12;
-                wordParag.Range.Font.Bold = 0;
-                wordParag.Range.Paragraphs.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphLeft;
-
-                
-                string currentAnswers = "";
-                string[] question = new string[30];
-                for (int i = 0; i < countThemes; i++)
-                {
-                    progressBar1.Value += 1;
-                    wordParag.Range.Text += $"////////////////ЗАДАНИЕ {i + 1}////////////////";
-                    for (int j = 0; j < 5; j++)
-                    {
-                        question = GetQuestion(i, j + 1);
-                        currentAnswers += $"{i * (countThemes - 1) + j + 1}) " + question[5] + "; ";    // ответ запихнули
-                        AddTask(wordParag, question, i * (countThemes - 1) + j + 1, document);
-                    }
-                }
-
-                wordParag.Range.Text += "\nОтветы: " + currentAnswers;
-
-                waitLabel.Text = "";
-                progressBar1.Value = 0;
-                progressBar1.Visible = false;
-                app.Visible = true;
-            }
-            catch (Exception Ex)
-            {
-                //document.Close();
-                document = null;
-                Console.WriteLine("Во время выполнения произошла ошибка!");
-                Console.ReadLine();
-            }
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
         }
     }
 
@@ -297,22 +194,22 @@ namespace TheorityVerityV0._1
 
         public MakeTest()
         {
-            // всего будет 16 файлов с заданиями из которых надо выбрать по 1 штуке
-            Test = new List<int>[16];
-            for (int i = 0; i < 16; i++)
+            Test = new List<int>[8];
+            for (int i = 0; i < 8; i++)
                 Test[i] = new List<int>();
             Random rnd = new Random();
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < 8; i++)
             {
-                int C = numberOfCiombinations(5, 1);
+                int C = numberOfCiombinations(5, 2);
                 int r = rnd.Next(C);
                 Combinatorics combObj = new Combinatorics();
-                combObj.Object(5, 1, false);
+                combObj.Object(5, 2, false);
 
                 for (int j = 0; j < r; j++)
                     combObj.NextCombination();
 
-                Test[i].Add(combObj.CombObject[0]);
+                for (int j = 0; j < 2; j++)
+                    Test[i].Add(combObj.CombObject[j]);
             }
             //print();
         }

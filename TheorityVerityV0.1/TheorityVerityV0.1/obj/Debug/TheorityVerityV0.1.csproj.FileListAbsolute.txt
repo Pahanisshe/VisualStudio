@@ -9,15 +9,3 @@ F:\Кирилл\VisualStudioProjects\TheorityVerityV0.1\TheorityVerityV0.1\obj\D
 F:\Кирилл\VisualStudioProjects\TheorityVerityV0.1\TheorityVerityV0.1\obj\Debug\TheorityVerityV0.1.csproj.CoreCompileInputs.cache
 F:\Кирилл\VisualStudioProjects\TheorityVerityV0.1\TheorityVerityV0.1\obj\Debug\TheorityVerityV0.1.exe
 F:\Кирилл\VisualStudioProjects\TheorityVerityV0.1\TheorityVerityV0.1\obj\Debug\TheorityVerityV0.1.pdb
-F:\TheorityVerityV0.1\TheorityVerityV0.1\bin\Debug\TheorityVerityV0.1.exe.config
-F:\TheorityVerityV0.1\TheorityVerityV0.1\bin\Debug\TheorityVerityV0.1.exe
-F:\TheorityVerityV0.1\TheorityVerityV0.1\bin\Debug\TheorityVerityV0.1.pdb
-F:\TheorityVerityV0.1\TheorityVerityV0.1\obj\Debug\TheorityVerityV0.1.csprojAssemblyReference.cache
-F:\TheorityVerityV0.1\TheorityVerityV0.1\obj\Debug\TheorityVerityV0.1.csproj.ResolveComReference.cache
-F:\TheorityVerityV0.1\TheorityVerityV0.1\obj\Debug\TheorityVerityV0._1.Menu.resources
-F:\TheorityVerityV0.1\TheorityVerityV0.1\obj\Debug\TheorityVerityV0._1.Properties.Resources.resources
-F:\TheorityVerityV0.1\TheorityVerityV0.1\obj\Debug\TheorityVerityV0.1.csproj.GenerateResource.cache
-F:\TheorityVerityV0.1\TheorityVerityV0.1\obj\Debug\TheorityVerityV0.1.csproj.CoreCompileInputs.cache
-F:\TheorityVerityV0.1\TheorityVerityV0.1\obj\Debug\TheorityVerityV0.1.exe
-F:\TheorityVerityV0.1\TheorityVerityV0.1\obj\Debug\TheorityVerityV0.1.pdb
-F:\TheorityVerityV0.1\TheorityVerityV0.1\obj\Debug\TheorityVerityV0._1.ClearMemory.resources
