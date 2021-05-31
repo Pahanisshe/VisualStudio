@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using word = Microsoft.Office.Interop.Word;
-using System.Threading;
+using System.Reflection;
+//using System.Threading;
 
 namespace TheorityVerityV0._1
 {
@@ -28,8 +29,12 @@ namespace TheorityVerityV0._1
                 var app = new word.Application();
                 app.Visible = true;
                 document = app.Documents.Add();
-                
-                Microsoft.Office.Interop.Word.Paragraph wordParag;
+                document.Application.Selection.PageSetup.LeftMargin = 20F;    // левое поле
+                document.Application.Selection.PageSetup.RightMargin = 20F;   // правое поле
+                document.Application.Selection.PageSetup.TopMargin = 20F;     // верхнее поле
+                document.Application.Selection.PageSetup.BottomMargin = 20F;  // нижнее поле 
+
+                word.Paragraph wordParag;
                 // первый параграф
                 wordParag = document.Paragraphs.Add(Type.Missing);
                 wordParag.Range.Font.Name = "Times New Roman";
@@ -48,17 +53,19 @@ namespace TheorityVerityV0._1
 
                 // Третий параграф
                 document.Paragraphs.Add(Type.Missing);
+                wordParag.Range.ParagraphFormat.SpaceAfter = 0;  // интервал после
                 wordParag.Range.Font.Name = "Times New Roman";
-                wordParag.Range.Font.Size = 14;
+                wordParag.Range.Font.Size = 12;
                 wordParag.Range.Font.Bold = 0;
                 wordParag.Range.Paragraphs.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphLeft;
 
-                AddTestToFile(wordParag);
-                
+                AddTestToFile(wordParag, document);
+
+                //AddPicToFile(wordParag, document);
             }
             catch (Exception Ex)
             {
-                document.Close();
+                //document.Close();
                 document = null;
                 Console.WriteLine("Во время выполнения произошла ошибка!");
                 Console.ReadLine();
@@ -68,7 +75,33 @@ namespace TheorityVerityV0._1
             GC.Collect();
         }
 
-        private void AddTestToFile(Microsoft.Office.Interop.Word.Paragraph wordParag)
+        // рабочий метод вставки картинки в таблицу, которая вставляется в параграф wordParag документа document
+        // i - номер картинки (п\п)
+        private void AddPicToFile(Microsoft.Office.Interop.Word.Paragraph wordParag, word.Document document, string smallPath, int  i)
+        {
+            // добавляем таблицу в параграф
+            // можно не создавать объект Table, а обращаться document.Tables[i]
+            word.Table table = document.Tables.Add(wordParag.Range, 1, 1, true, true);
+
+            // получаем путь к картинке
+            string filePathPic1 = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName) + smallPath;
+            //MessageBox.Show(filePathPic1);
+
+            object missing = System.Reflection.Missing.Value;
+            
+            // делаем границы таблицы невидимыми
+            table.Borders.OutsideLineStyle = word.WdLineStyle.wdLineStyleNone;
+            table.Borders.InsideLineStyle = word.WdLineStyle.wdLineStyleNone;
+            //word.Range rngPic = table.Range;
+
+            //Вариант для ячейки таблицы:
+            word.Range rngPic = table.Cell(i, 1).Range;
+
+            // добавляем картинку в таблицу
+            rngPic.InlineShapes.AddPicture(filePathPic1, ref missing, ref missing, ref missing);
+        }
+
+        private void AddTestToFile(Microsoft.Office.Interop.Word.Paragraph wordParag, word.Document document)
         {
             MakeTest test = new MakeTest();
             
@@ -81,20 +114,62 @@ namespace TheorityVerityV0._1
                 for (int j = 0; j < 2; j++)
                 {
                     question = GetQuestion(i, test.Test[i][j]);
-                    currentAnswers += question[5];    // ответ запихнули
-                    AddTask(wordParag, question, i * 2 + j + 1);
+                    currentAnswers += $"{i * 2 + j + 1}) " + question[5] + "; ";    // ответ запихнули
+                    AddTask(wordParag, question, i * 2 + j + 1, document);
                 }
             }
 
-            wordParag.Range.Text += "\nТРУ ОТВЕТЫ ИНФА СОТКА: " + currentAnswers;
+            wordParag.Range.Text += "\nОтветы: " + currentAnswers;
             
         }
 
-        private void AddTask(Microsoft.Office.Interop.Word.Paragraph wordParag, string[] question, int numberTask)
+        private void AddTask(Microsoft.Office.Interop.Word.Paragraph wordParag, string[] question, int numberTask, word.Document document)
         {
+            //MessageBox.Show("Вывод вопроса...");
             wordParag.Range.Text += $"({numberTask}) " + question[0];
+            //MessageBox.Show("Вопрос выведен...");
+            // костыль чтобы таблицы нормально печатались без удаления вопроса
+            bool is_space = true;
             for (int i = 1; i < 5; i++)
-                wordParag.Range.Text += $"{i}) " + question[i];
+            {
+                if (!question[i].Contains("pics"))
+                {
+                    //MessageBox.Show("Выводим ответ...");
+                    if (!is_space)
+                    {
+                        //MessageBox.Show("Пустая строка!");
+                        word.Table table = document.Tables.Add(wordParag.Range, 1, 1, true, true);
+                        // делаем границы таблицы невидимыми
+                        table.Borders.OutsideLineStyle = word.WdLineStyle.wdLineStyleNone;
+                        table.Borders.InsideLineStyle = word.WdLineStyle.wdLineStyleNone;
+                        //Вариант для ячейки таблицы:
+                        word.Range rngPic = table.Cell(i, 1).Range;
+                        rngPic.Text = $"{i}. " + question[i];
+                        is_space = false;
+                    }
+                    else
+                    {
+                        wordParag.Range.Text += $"{i}. " + question[i];
+                        is_space = true;
+                    }
+                    //MessageBox.Show("Ответ...");
+                }
+                else
+                {
+                    wordParag = document.Paragraphs.Add(Type.Missing);
+                    if (is_space)
+                    {
+                        //MessageBox.Show("Выводим пробел...");
+                        wordParag.Range.Text += "";
+                        is_space = false;
+                    }
+                    //wordParag1.Range.Text += "";
+                    //MessageBox.Show("Выводим картинку...");
+                    AddPicToFile(wordParag, document, question[i], i);
+                    //wordParag.Range.Text.
+                }
+
+            }
             wordParag.Range.Text += "";
         }
 
@@ -110,8 +185,6 @@ namespace TheorityVerityV0._1
                 question[i] = fsr.ReadLine();
             return question;
         }
-
-        
     }
 
     public class MakeTest
