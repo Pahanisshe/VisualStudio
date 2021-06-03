@@ -12,8 +12,8 @@ using namespace std;
 //#define L 1500
 
 
-#define siz 3
-#define eps 0.001
+#define siz 500
+#define eps 0.01
 
 class Matrixes {
 public:
@@ -89,6 +89,17 @@ public:
 		}
 	}
 
+	//output matr
+	static void print(double** matr, int n, int m)
+	{
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < m; j++)
+				cout << matr[i][j] << " ";
+			cout << endl;
+		}
+	}
+
 	//последовательный алгоритм
 	static void linear(int** A, int** B, int n, int m, int l)
 	{
@@ -114,7 +125,7 @@ public:
 	static void tape(int** A, int** B, int n, int m, int l)
 	{
 		int** C = matr(n, l, 0);
-		int threadNum = omp_get_max_threads();
+		int threadNum = 4;
 		int mi = n / threadNum;
 		int i, j, k;
 
@@ -224,7 +235,7 @@ public:
 		print(C, size, size);*/
 	}
 
-	static double** ReadMatrFile(string fileName) 
+	static double** ReadMatrFile(string fileName)
 	{
 		setlocale(LC_ALL, "RUSSIAN");
 
@@ -283,7 +294,7 @@ public:
 				for (int j = 0; j < m; j++)
 					in >> x[i][j];
 
-			
+
 
 			//Выведем матрицу
 			for (int i = 0; i < n; i++)
@@ -315,7 +326,7 @@ public:
 	//init vector
 	static double* initVector(int n, double value)
 	{
-		double* vector = new double [n];
+		double* vector = new double[n];
 		for (int i = 0; i < n; i++)
 			vector[i] = value;
 
@@ -362,10 +373,11 @@ public:
 		t = omp_get_wtime() - t;
 		cout << "Time of parallel Jakobi: " << t << endl;
 		printVector(N, X);
+		cout << "Sum parallel: " << sumVectorX(N, X) << endl;
 		cout << endl;
 	}
 
-	static void JacobiLinear(int N, double **A, double* F, double* X)
+	static void JacobiLinear(int N, double** A, double* F, double* X)
 	{
 		double* TempX = initVector(siz, 0.0);
 		double norm; // норма, определяемая как наибольшая разность компонент столбца иксов соседних итераций.
@@ -373,14 +385,14 @@ public:
 		do {
 			for (int i = 0; i < N; i++) {
 				TempX[i] = F[i];
-				
+
 				for (int g = 0; g < N; g++) {
 					if (i != g)
 						TempX[i] -= A[i][g] * X[g];
 					// cout << "tempx = " << TempX[i] << endl;
 				}
 				TempX[i] /= A[i][i];
-				
+
 			}
 			norm = fabs(X[0] - TempX[0]);
 			for (int h = 0; h < N; h++) {
@@ -388,11 +400,12 @@ public:
 					norm = fabs(X[h] - TempX[h]);
 				X[h] = TempX[h];
 			}
-			cout << "norma = " << norm << endl;
+			//cout << "norma = " << norm << endl;
 		} while (norm > eps);
 		t = omp_get_wtime() - t;
 		cout << "Time of linear Jakobi: " << t << endl;
 		printVector(N, X);
+		cout << "Sum linear: " << sumVectorX(N, X) << endl;
 		cout << endl;
 	}
 
@@ -422,7 +435,7 @@ public:
 		cout << t << endl;
 		printVector(X);
 	}
-	
+
 	static void JacobiLinearVec(int N, vector<vector<double>> A, vector<double> F, vector<double> X)
 	{
 		vector<double> TempX(N, 0.0);
@@ -449,13 +462,35 @@ public:
 		printVector(X);
 	}
 
+	static double sumVectorX(int n, double* X)
+	{
+		double sum = 0.0;
+		for (int i = 0; i < n; i++)
+			sum += X[i];
+		return sum;
+	}
+
+	static double** initMatr(int n)
+	{
+		double** A = new double*[n];
+		for (int i = 0; i < n; i++)
+			A[i] = new double[n];
+
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < n; j++)
+				if (i == j)
+					A[i][j] = n + 20;
+				else
+					A[i][j] = 1;
+		return A;
+	}
 };
 
 class Simpson {
 public:
 	static double f(double x) //исходная функция
 	{
-		double f = (x * x + 1);
+		double f = (x * x * x + 1);
 		return f;
 	}
 
@@ -465,7 +500,7 @@ public:
 		double steps = 100;
 		double Sresult, S1result1;
 		int Scount = 0;
-		double accurasy = 0.000001;
+		double accurasy = 0.1;
 		double step = (b - a) / steps;
 		Sresult = S1result1 = 0;
 		double t = omp_get_wtime();
@@ -502,11 +537,11 @@ public:
 #pragma omp critical
 			cout << cursum << ' ' << kol * cur + a << ' ' << kol * (cur + 1) + a << endl;
 			//for (int i = kol * cur; i < kol * (cur + 1); i += kol) {
-				sum += cursum;
+			sum += cursum;
 			//}
 		}
 		double t1 = omp_get_wtime();
-//#pragma omp single
+		//#pragma omp single
 		cout << endl << "Parallel time = " << t1 - t << endl;
 
 		return sum;
@@ -515,9 +550,47 @@ public:
 
 void main()
 {
+	// Matrixi
+	int** A = Matrixes::matr(siz, siz, 2);
+	int** B = Matrixes::matr(siz, siz, 2);
+	Matrixes::linear(A, B, siz, siz, siz); 
+	Matrixes::tape(A, B, siz, siz, siz);
+	Matrixes::BlockAr(A, B);
 
-	cout << Simpson::methodSimpson(-3, 3) << endl;
-	cout << Simpson::methodSimpsonParalell(-3, 3) << endl;
+	// проверка работы метода заполнения матрицы
+	/*double** At = JakobiMethod::initMatr(5);
+	Matrixes::print(At, 5, 5);*/
+
+	// Jakobi
+	//int n = 12;
+	//double** A = JakobiMethod::initMatr(n);
+	//Matrixes::print(A, n, n);
+	//double* F = JakobiMethod::initVector(n, 3);
+	
+	//double** A = Matrixes::ReadMatrFile("matr.txt");
+	// matr 4x4 file
+	/*F[0] = 6;
+	F[1] = -9;
+	F[2] = 5;
+	F[3] = 2;*/
+	
+	// matr 8x8 file
+	/*F[0] = 6;
+	F[1] = -9;
+	F[2] = 5;
+	F[3] = 2;
+	F[4] = 6;
+	F[5] = -9;
+	F[6] = 5;
+	F[7] = 2;*/
+
+	//double* X = JakobiMethod::initVector(n, 0);
+	//JakobiMethod::JacobiLinear(n, A, F, X);
+	//JakobiMethod::JacobiParallel(n, A, F, X);
+
+	// simpson
+	//cout << Simpson::methodSimpson(-3.5, 3.5) << endl;
+	//cout << Simpson::methodSimpsonParalell(-3.5, 3.5) << endl;
 
 	system("pause");
 }
