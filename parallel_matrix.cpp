@@ -734,6 +734,304 @@ void ParallelOddEvenSort(double* pData, int Size) {
             }
     }
 }
+	
+	//--------------------Сортировка Шелла-----------------------
+
+// Последовательный алгоритм сортировки Шелла 
+void ShellSort(double* pData, int n)
+{
+    int incr = n / 2;
+    int j;
+
+    while (incr > 0)
+    {
+        for (int i = incr + 1; i < n; i++) {
+            j = i - incr;
+            while (j >= 0)
+                if (pData[j] > pData[j + incr])
+                {
+                    swap(pData[j], pData[j + incr]);
+                    j = j - incr;
+                }
+                else j = -1;
+        }
+        incr = incr / 2;
+    }
+}
+
+int ThreadNum; // Количество потоков 
+int ThreadID; // Номер потока 
+int DimSize; // Размерность гиперкуба 
+
+// Создадим локальные копии переменной ThreadID
+#pragma omp threadprivate(ThreadID)
+
+// Определим количество потоков ThreadNum и размерность виртуального
+// гиперкуба DimSize, а также идентификатор потока ThreadID
+void InitializeParallelSections()
+{
+#pragma omp parallel 
+    {
+        ThreadID = omp_get_thread_num();
+#pragma omp single 
+        ThreadNum = omp_get_num_threads(); 
+    }
+    DimSize = int(log10(double(ThreadNum)) / log10(2.0)) + 1;
+}
+
+// Функция для слияния отсортированных блоков 
+void MergeBlocks(double* pData, int Index1, int BlockSize1, int Index2, int BlockSize2)
+{
+    double* pTempArray = new double[BlockSize1 + BlockSize2];
+    int i1 = Index1, i2 = Index2, curr = 0;
+
+    while ((i1 < Index1 + BlockSize1) && (i2 < Index2 + BlockSize2))
+    {
+        if (pData[i1] < pData[i2]) 
+            pTempArray[curr++] = pData[i1++];
+        else 
+            pTempArray[curr++] = pData[i2++];
+    }
+
+    while (i1 < Index1 + BlockSize1) 
+        pTempArray[curr++] = pData[i1++];
+
+    while (i2 < Index2 + BlockSize2) 
+        pTempArray[curr++] = pData[i2++];
+
+    for (int i = 0; i < BlockSize1 + BlockSize2; i++)
+        pData[Index1 + i] = pTempArray[i];
+
+    delete[] pTempArray;
+}
+
+// Функция для проверки упорядоченности массива
+bool IsSorted(double* pData, int Size) {
+    bool res = true;
+
+    for (int i = 1; (i < Size) && (res); i++) {
+        if (pData[i] < pData[i - 1])
+            res = false;
+    }
+
+    return res;
+}
+
+// Функция для вычисления номера блока в гиперкубе 
+int GrayCode(int RingID, int DimSize)
+{
+    if ((RingID == 0) && (DimSize == 1))
+        return 0;
+    if ((RingID == 1) && (DimSize == 1))
+        return 1;
+
+    int res;
+
+    if (RingID < (1 << (DimSize - 1))) 
+        return res = GrayCode(RingID, DimSize - 1);
+    else 
+        return res = (1 << (DimSize - 1)) + GrayCode((1 << DimSize) - 1 - RingID, DimSize - 1);
+}
+
+// Функция для вычисления линейного номера блока 
+int ReverseGrayCode(int CubeID, int DimSize)
+{
+    for (int i = 0; i < (1 << DimSize); i++)
+    {
+        if (CubeID == GrayCode(i, DimSize))
+            return i;
+    }
+}
+
+// Функция для определения пар блоков 
+void SetBlockPairs(int* BlockPairs, int Iter)
+{
+    int PairNum = 0, FirstValue, SecondValue;
+    bool Exist;
+
+    for (int i = 0; i < 2 * ThreadNum; i++)
+    {
+        FirstValue = GrayCode(i, DimSize);
+        Exist = false;
+
+        for (int j = 0; (j < PairNum) && (!Exist); j++)
+            if (BlockPairs[2 * j + 1] == FirstValue)
+                Exist = true;
+
+        if (!Exist) {
+            SecondValue = FirstValue^(1 << (DimSize - Iter - 1));
+            BlockPairs[2 * PairNum] = FirstValue;
+            BlockPairs[2 * PairNum + 1] = SecondValue;
+            PairNum++;
+        }
+    }
+}
+
+// Функция поиска парного блока для текущего потока 
+int FindMyPair(int* BlockPairs, int ThreadID, int Iter)
+{
+    int BlockID = 0, index, result;
+    for (int i = 0; i < ThreadNum; i++)
+    {
+        BlockID = BlockPairs[2 * i];
+        if (Iter == 0) 
+            index = BlockID % (1 << (DimSize - Iter - 1));
+
+        if ((Iter > 0) && (Iter < DimSize - 1)) 
+            index = ((BlockID >> (DimSize - Iter)) << (DimSize - Iter - 1)) | (BlockID % (1 << (DimSize - Iter - 1)));
+        
+        if (Iter == DimSize - 1) 
+            index = BlockID >> 1;
+
+        if (index == ThreadID) {
+            result = i;
+            break;
+        }
+    }
+    return result;
+}
+
+void SerialQuickSort(double* pData, int first, int last);
+
+// "Сравнить и разделить"
+// Все элементы из двух массивов делим так, чтобы
+// все элементы в первом блоке были меньше любого
+// элемента второго блока.
+void CompareSplitBlocks(double* pData, int FirstBlockBegin, int FirstBlockSize, int SecondBlockBegin, int SecondBlockSize)
+{
+    int TotalSize = FirstBlockSize + SecondBlockSize;
+    double* pTempBlock = new double[TotalSize];
+
+    for (int i = 0; i < FirstBlockSize; i++)
+        pTempBlock[i] = pData[i + FirstBlockBegin];
+
+    for (int i = FirstBlockSize; i < TotalSize; i++)
+        pTempBlock[i] = pData[i - FirstBlockSize + SecondBlockBegin];
+
+    double sum = 0;
+    int count = 0;
+
+    for (int i = 0; i < TotalSize; i++) {
+        sum += pTempBlock[i];
+        count++;
+    }
+
+    double average = sum / count;
+
+    int Ind1 = 0, Ind2 = 0;
+
+    for (int i = 0; i < TotalSize; i++)
+    {
+        // Если элемент больше среднего значения блока,
+        // пробуем поместить его в первый блок.
+        if (pTempBlock[i] < average) {
+            // Если в первом блоке есть место, помещаем
+            // элемент в первый блок.
+            if (Ind1 < FirstBlockSize)
+            {
+                pData[FirstBlockBegin + Ind1] = pTempBlock[i];
+                Ind1++;
+            }
+            // Иначе во второй.
+            else
+            {
+                pData[SecondBlockBegin + Ind2] = pTempBlock[i];
+                Ind2++;
+            }
+        }
+        // Если больше, пробуем поместить во второй блок.
+        else {
+            // Если во втором блоке есть место, помещаем
+            // элемент во второй блок.
+            if (Ind2 < SecondBlockSize)
+            {
+                pData[SecondBlockBegin + Ind2] = pTempBlock[i];
+                Ind2++;
+            }
+            // Иначе в первый.
+            else
+            {
+                pData[FirstBlockBegin + Ind1] = pTempBlock[i];
+                Ind1++;
+            }
+        }
+    }
+}
+
+// Функция для параллельного алгоритма Шелла 
+void ParallelShellSort(double* pData, int Size)
+{
+    InitializeParallelSections();
+
+    // Массив индексов первых элемен-тов блоков данных.
+    // Т.е. i-й блок данных начинается с элемента Index[i] 
+    // исходного массива.
+    int* Index = new int[2 * ThreadNum];
+
+    // Массив размеров блоков данных
+    int* BlockSize = new int[2 * ThreadNum];
+
+    // Массив пар номеров блоков в структуре гиперкуба
+    int* BlockPairs = new int[2 * ThreadNum];
+
+    for (int i = 0; i < 2 * ThreadNum; i++)
+    {
+        Index[i] = int((i * Size) / double(2 * ThreadNum));
+        if (i < 2 * ThreadNum - 1) 
+            BlockSize[i] = int(((i + 1) * Size) / double(2 * ThreadNum)) - Index[i];
+        else 
+            BlockSize[i] = Size - Index[i];
+    }
+
+    // Итерации алгоритма Шелла 
+   for (int Iter = 0; (Iter < DimSize) && (!IsSorted(pData, Size)); Iter++)
+    {
+        // Определение пар блоков 
+        SetBlockPairs(BlockPairs, Iter);
+
+        // Операция "Сравнить и разделить" 
+#pragma omp parallel 
+        {
+            int MyPairNum = FindMyPair(BlockPairs, ThreadID, Iter);
+            int FirstBlock = ReverseGrayCode(BlockPairs[2 * MyPairNum], DimSize);
+            int SecondBlock = ReverseGrayCode(BlockPairs[2 * MyPairNum + 1], DimSize);
+
+            CompareSplitBlocks(pData, Index[FirstBlock], BlockSize[FirstBlock], Index[SecondBlock], BlockSize[SecondBlock]);
+        }
+    }
+
+    // Локальная сортировка блоков данных
+#pragma omp parallel
+    {
+        int BlockID = ReverseGrayCode(ThreadNum + ThreadID, DimSize);
+        SerialQuickSort(pData, Index[BlockID], Index[BlockID] + BlockSize[BlockID] - 1);
+        BlockID = ReverseGrayCode(ThreadID, DimSize);
+        SerialQuickSort(pData, Index[BlockID], Index[BlockID] + BlockSize[BlockID] - 1);
+    }
+
+    // Чет-нечетная перестановка 
+    int Iter = 1;
+    while (!IsSorted(pData, Size))
+    {
+#pragma omp parallel 
+        {
+            if (Iter % 2 == 0) {
+                // четная итерация 
+                MergeBlocks(pData, Index[2 * ThreadID], BlockSize[2 * ThreadID], Index[2 * ThreadID + 1], BlockSize[2 * ThreadID + 1]);
+            }
+            else {
+                // нечетная итерация 
+                if (ThreadID < ThreadNum - 1)
+                    MergeBlocks(pData, Index[2 * ThreadID + 1], BlockSize[2 * ThreadID + 1], Index[2 * ThreadID + 2], BlockSize[2 * ThreadID + 2]);
+            }
+        }
+        Iter++;
+    }
+    delete[] Index;
+    delete[] BlockSize;
+    delete[] BlockPairs;
+}
+//-----------------------------------------------------------
 
 }
 
