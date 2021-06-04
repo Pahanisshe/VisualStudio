@@ -1033,6 +1033,213 @@ void ParallelShellSort(double* pData, int Size)
 }
 //-----------------------------------------------------------
 
+	//--------------------Быстрая сортировка---------------------
+
+// Последовательный алгоритм быстрой сортировки
+void SerialQuickSort(double* pData, int first, int last) 
+{
+    while (first < last) 
+    {
+        int PivotPos = first;
+        double Pivot = pData[first];
+        for (int i = first + 1; i <= last; i++) 
+        {
+            if (pData[i] < Pivot) 
+            {
+                if (i != PivotPos + 1)
+                    swap(pData[i], pData[PivotPos + 1]);
+                PivotPos++;
+            }
+        }
+        swap(pData[first], pData[PivotPos]);
+
+        if (PivotPos - first < last - PivotPos) {
+            SerialQuickSort(pData, first, PivotPos - 1);
+            first = PivotPos + 1;
+        }
+        else {
+            SerialQuickSort(pData, PivotPos + 1, last);
+            last = PivotPos - 1;
+        }
+    }
+}
+
+// Функция для операции "Сравнить и разделить" 
+void qCompareSplitBlocks(double* pFirstBlock, int& FirstBlockSize, double* pSecondBlock, int& SecondBlockSize, double Pivot)
+{
+    int TotalSize = FirstBlockSize + SecondBlockSize;
+    double* pTempBlock = new double[TotalSize];
+    int LastMin = 0, FirstMax = TotalSize - 1;
+
+    for (int i = 0; i < FirstBlockSize; i++) 
+    {
+        if (pFirstBlock[i] < Pivot) 
+            pTempBlock[LastMin++] = pFirstBlock[i];
+        else 
+            pTempBlock[FirstMax--] = pFirstBlock[i];
+    }
+    
+    for (int i = 0; i < SecondBlockSize; i++) {
+        if (pSecondBlock[i] < Pivot) 
+            pTempBlock[LastMin++] = pSecondBlock[i];
+        else 
+            pTempBlock[FirstMax--] = pSecondBlock[i];
+    }
+
+    FirstBlockSize = LastMin;
+    SecondBlockSize = TotalSize - LastMin;
+
+    for (int i = 0; i < FirstBlockSize; i++) 
+        pFirstBlock[i] = pTempBlock[i];
+
+    for (int i = 0; i < SecondBlockSize; i++) 
+        pSecondBlock[i] = pTempBlock[FirstBlockSize + i];
+      
+    delete[] pTempBlock;
+}
+
+// Функция для определения пар блоков 
+void qSetBlockPairs(int* BlockPairs, int Iter)
+{
+    int PairNum = 0, FirstValue, SecondValue;
+    bool Exist;
+
+    for (int i = 0; i < 2 * ThreadNum; i++)
+    {
+        FirstValue = i;
+        Exist = false;
+
+        for (int j = 0; (j < PairNum) && (!Exist); j++)
+            if (BlockPairs[2 * j + 1] == FirstValue) 
+                Exist = true;
+
+        if (!Exist) {
+            SecondValue = FirstValue^(1 << (DimSize - Iter - 1));
+            BlockPairs[2 * PairNum] = FirstValue;
+            BlockPairs[2 * PairNum + 1] = SecondValue;
+            PairNum++;
+        }
+    }
+}
+
+double MaxElementOfArray(double* pData, int Size);
+
+double MinElementOfArray(double* pData, int Size);
+
+// Параллельный алгоритм быстрой сортировки
+void ParallelQuickSort(double* pData, int Size) 
+{
+    InitializeParallelSections();
+    double** pTempData = new double* [2 * ThreadNum]; // Система буферов
+    int* BlockSize = new int[2 * ThreadNum];
+    double* Pivots = new double[ThreadNum];
+    int* BlockPairs = new int[2 * ThreadNum];
+
+    double AvailableThreadNum = 2 * ThreadNum;
+    double CurrentSize = Size;
+
+    for (int i = 0; i < 2 * ThreadNum; i++)
+    {
+        pTempData[i] = new double[Size];
+
+        BlockSize[i] = ceil(CurrentSize / AvailableThreadNum);
+
+        CurrentSize = CurrentSize - BlockSize[i];
+        AvailableThreadNum--;
+    }
+
+    int ind = 0;
+    for (int i = 0; i < 2 * ThreadNum; i++)
+        for (int j = 0; j < BlockSize[i]; j++)
+            pTempData[i][j] = pData[ind++];
+
+    double MaxValue = MaxElementOfArray(pData, Size);
+    double MinValue = MinElementOfArray(pData, Size);
+
+    // Итерации быстрой сортировки 
+    for (int i = 0; i < DimSize; i++) {
+        // Определение ведущих значений 
+        for (int j = 0; j < ThreadNum; j++)
+        {
+            Pivots[j] = (MaxValue + MinValue) / 2;
+        }
+
+        for (int iter = 1; iter <= i; iter++)
+            for (int j = 0; j < ThreadNum; j++)
+            {
+                Pivots[j] = Pivots[j] - pow(-1.0f, j / ((2 * ThreadNum) >> (iter + 1))) * (MaxValue - MinValue) / (2 << iter);
+            }
+
+        // Определение пар блоков 
+        qSetBlockPairs(BlockPairs, i);
+
+#pragma omp parallel 
+        {
+            int MyPair = FindMyPair(BlockPairs, ThreadID, i);
+            int FirstBlock = BlockPairs[2 * MyPair];
+            int SecondBlock = BlockPairs[2 * MyPair + 1];
+
+            qCompareSplitBlocks(pTempData[FirstBlock], BlockSize[FirstBlock], pTempData[SecondBlock], BlockSize[SecondBlock], Pivots[ThreadID]);
+        }
+    }
+    
+    // Локальная сортировка 
+#pragma omp parallel 
+    {
+        if (BlockSize[2 * ThreadID] > 0)
+            SerialQuickSort(pTempData[2 * ThreadID], 0, BlockSize[2 * ThreadID] - 1);
+        if (BlockSize[2 * ThreadID + 1] > 0)
+            SerialQuickSort(pTempData[2 * ThreadID + 1], 0, BlockSize[2 * ThreadID + 1] - 1);
+    }
+
+    ind = 0;
+    for (int i = 0; i < 2 * ThreadNum; i++)
+        for (int j = 0; (j < BlockSize[i]) && (ind < Size); j++)
+            pData[ind++] = pTempData[i][j];
+    
+    for (int i = 0; i < ThreadNum; i++)
+        delete[] pTempData[i];
+
+    delete[] pTempData;
+    delete[] BlockSize;
+    delete[] Pivots;
+    delete[] BlockPairs;
+}
+//-----------------------------------------------------------
+
+double MaxElementOfArray(double* pData, int Size)
+{
+    double Max = pData[0];
+
+    for ( int i = 0; i < Size; i++)
+        if (pData[i] > Max) Max = pData[i];
+
+    return Max;
+}
+
+double MinElementOfArray(double* pData, int Size)
+{
+    double Min = pData[0];
+
+    for (int i = 0; i < Size; i++)
+        if (pData[i] < Min) Min = pData[i];
+
+    return Min;
+}
+
+void PrintArray(double* pData, int Size)
+{
+    for (int i = 0; i < Size; i++)
+        cout << pData[i] << " ";
+    cout << endl;
+}
+
+void CopyArray(double* A, double* B, int n)
+{
+    for (int i = 0; i < n; i++)
+        B[i] = A[i];
+}
+	
 }
 
 void main()
