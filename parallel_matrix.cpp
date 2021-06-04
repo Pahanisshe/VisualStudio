@@ -663,6 +663,80 @@ public:
 	}
 };
 
+class Sotr{
+public:
+	// Последовательный алгоритм чет-нечетной перестановки 
+	void OddEvenSort(double* pData, int Size)
+	{
+    		double temp;
+    		int upper_bound;
+
+    		if (Size % 2 == 0) 
+		        upper_bound = Size / 2 - 1;
+	    	else 
+	        	upper_bound = Size / 2;
+
+	    	for (int i = 0; i < Size; i++) {
+		        if (i % 2 == 0)
+	          	  // четная итерация 
+	       	    	for (int j = 0; j < Size / 2; j++)
+	            	{
+	                	if (pData[2 * j] > pData[2 * j + 1]) {
+	                    	temp = pData[2 * j];
+	                    	pData[2 * j] = pData[2 * j + 1];
+	                    	pData[2 * j + 1] = temp;
+	                	}
+	            	}
+	        	else
+	            	// нечетная итерация 
+	            	for (int j = 0; j < upper_bound; j++)
+	            	{
+		                if (pData[2 * j + 1] > pData[2 * j + 2]) {
+		                    temp = pData[2 * j + 1];
+		                    pData[2 * j + 1] = pData[2 * j + 2];
+		                    pData[2 * j + 2] = temp;
+		                }
+	        	}
+    		}
+	}
+
+// Параллельный алгоритм чет-нечетной перестановки
+void ParallelOddEvenSort(double* pData, int Size) {
+    double temp;
+    int upper_bound;
+
+    if (Size % 2 == 0)
+        upper_bound = Size / 2 - 1;
+    else
+        upper_bound = Size / 2;
+
+    for (int i = 0; i < Size; i++) 
+    {
+        if (i % 2 == 0) // четная итерация
+#pragma omp parallel for
+            for (int j = 0; j < Size / 2; j++)
+            {
+                if (pData[2 * j] > pData[2 * j + 1]) {
+                    temp = pData[2 * j];
+                    pData[2 * j] = pData[2 * j + 1];
+                    pData[2 * j + 1] = temp;
+                }
+            }
+        else // нечетная итерация
+#pragma omp parallel for
+            for (int j = 0; j < upper_bound; j++)
+            {
+                if (pData[2 * j + 1] > pData[2 * j + 2]) {
+                    temp = pData[2 * j + 1];
+                    pData[2 * j + 1] = pData[2 * j + 2];
+                    pData[2 * j + 2] = temp;
+                }
+            }
+    }
+}
+
+}
+
 void main()
 {
 	// Matrixi
