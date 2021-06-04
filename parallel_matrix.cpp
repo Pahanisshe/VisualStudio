@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include <iostream>
 #include <vector>
 #include <omp.h>
@@ -29,7 +30,7 @@ public:
 	//init matr
 	static int** matr(int n, int m, int value)
 	{
-		int** matr = new int* [n];
+		int** matr = new int*[n];
 		for (int i = 0; i < n; i++)
 			matr[i] = new int[m];
 
@@ -43,7 +44,7 @@ public:
 	//init matr
 	static double** matr(int n, int m, double value)
 	{
-		double** matr = new double* [n];
+		double** matr = new double*[n];
 		for (int i = 0; i < n; i++)
 			matr[i] = new double[m];
 
@@ -120,7 +121,7 @@ public:
 		cout << "sum linear: " << sum << endl;
 		cout << "time linear: " << t2 - t1 << endl << endl;
 	}
-	
+
 	//ленточный алгоритм
 	static void tape(int** A, int** B, int n, int m, int l)
 	{
@@ -173,7 +174,7 @@ public:
 						}
 						/*#pragma omp critical
 						{
-							cout << c[i][j] << " - c";
+						cout << c[i][j] << " - c";
 						}*/
 						//sum += c[i][j];
 					}
@@ -215,7 +216,7 @@ public:
 						}
 						/*#pragma omp critical
 						{
-							cout << c[i][j] << " - c";
+						cout << c[i][j] << " - c";
 						}*/
 
 						sum += C[i][j];
@@ -286,7 +287,7 @@ public:
 			int n = count / (count_space + 1);//число строк
 			int m = count_space + 1;//число столбцов на единицу больше числа пробелов
 			double** x;
-			x = new double* [n];
+			x = new double*[n];
 			for (int i = 0; i < n; i++) x[i] = new double[m];
 
 			//Считаем матрицу из файла
@@ -397,7 +398,7 @@ public:
 		//cout << "Sum parallel: " << sumVectorX(N, X) << endl;
 		cout << endl;
 		// norma max raznosti
-		
+
 		double* b1 = mulMatrVec(A, X, N, N);
 
 		//cout << "\n";
@@ -464,7 +465,7 @@ public:
 		}
 		cout << norma << endl;
 		norma = sqrt1(norma);
-		cout << norma << " - new norm"<< endl;
+		cout << norma << " - new norm" << endl;
 		/*cout << norma << " - norma" << endl;*/
 		if (norma < eps)
 			cout << true << "-------" << endl;
@@ -476,14 +477,14 @@ public:
 		/*double norma = 0;
 		for (int i = 0; i < N; i++)
 		{
-			norma += (b1[i] - F[i]) * (b1[i] - F[i]);
+		norma += (b1[i] - F[i]) * (b1[i] - F[i]);
 		}
 		norma = sqrt(norma);
 		cout << norma << " - norma" << endl;
 		if (norma < eps)
-			cout << true << endl;
+		cout << true << endl;
 		else
-			cout << false << endl;*/
+		cout << false << endl;*/
 
 
 	}
@@ -564,8 +565,8 @@ public:
 				else
 					A[i][j] = 3.1001;
 		return A;
-	}	
-	
+	}
+
 	static bool sqrt1(double norma)
 	{
 		return eps * 0.01;
@@ -634,7 +635,7 @@ public:
 			Scount++;
 		}
 		double t1 = omp_get_wtime();
-		//cout << endl << "Linear time = " << t1 - t << endl;
+
 
 		return Sresult;
 	}
@@ -650,607 +651,663 @@ public:
 			int cur = omp_get_thread_num();
 			double cursum = methodSimpson1(kol * cur + a, kol * (cur + 1) + a);
 #pragma omp critical
-			//cout << cursum << ' ' << kol * cur + a << ' ' << kol * (cur + 1) + a << endl;
-			//for (int i = kol * cur; i < kol * (cur + 1); i += kol) {
+
 			sum += cursum;
-			//}
 		}
 		double t1 = omp_get_wtime();
-		//#pragma omp single
+
 		cout << endl << "Parallel time = " << t1 - t << endl;
 
 		return sum;
 	}
 };
 
-class Sotr{
+class Sort {
 public:
-	// Последовательный алгоритм чет-нечетной перестановки 
-	void OddEvenSort(double* pData, int Size)
+
+	static void OddEvenSort(double* arr, int arrSize)
 	{
-    		double temp;
-    		int upper_bound;
+		double temp;
+		int upper_bound;
 
-    		if (Size % 2 == 0) 
-		        upper_bound = Size / 2 - 1;
-	    	else 
-	        	upper_bound = Size / 2;
+		if (arrSize % 2 == 0)
+			upper_bound = arrSize / 2 - 1;
+		else
+			upper_bound = arrSize / 2;
 
-	    	for (int i = 0; i < Size; i++) {
-		        if (i % 2 == 0)
-	          	  // четная итерация 
-	       	    	for (int j = 0; j < Size / 2; j++)
-	            	{
-	                	if (pData[2 * j] > pData[2 * j + 1]) {
-	                    	temp = pData[2 * j];
-	                    	pData[2 * j] = pData[2 * j + 1];
-	                    	pData[2 * j + 1] = temp;
-	                	}
-	            	}
-	        	else
-	            	// нечетная итерация 
-	            	for (int j = 0; j < upper_bound; j++)
-	            	{
-		                if (pData[2 * j + 1] > pData[2 * j + 2]) {
-		                    temp = pData[2 * j + 1];
-		                    pData[2 * j + 1] = pData[2 * j + 2];
-		                    pData[2 * j + 2] = temp;
-		                }
-	        	}
-    		}
+		double t1 = omp_get_wtime();
+		for (int i = 0; i < arrSize; i++) {
+			if (i % 2 == 0)
+
+				for (int j = 0; j < arrSize / 2; j++)
+				{
+					if (arr[2 * j] > arr[2 * j + 1]) {
+						temp = arr[2 * j];
+						arr[2 * j] = arr[2 * j + 1];
+						arr[2 * j + 1] = temp;
+					}
+				}
+			else
+
+				for (int j = 0; j < upper_bound; j++)
+				{
+					if (arr[2 * j + 1] > arr[2 * j + 2]) {
+						temp = arr[2 * j + 1];
+						arr[2 * j + 1] = arr[2 * j + 2];
+						arr[2 * j + 2] = temp;
+					}
+				}
+		}
+		double t2 = omp_get_wtime();
+
+		cout << "is sorted? -> " << IsSorted1(arr,arrSize) << endl;
+		cout << "time OddEven linear: " << t2 - t1 << endl << endl;
 	}
 
-// Параллельный алгоритм чет-нечетной перестановки
-void ParallelOddEvenSort(double* pData, int Size) {
-    double temp;
-    int upper_bound;
+	static void ParallelOddEvenSort(double* arr, int arrSize)
+	{
+		double temp;
+		int upper_bound;
 
-    if (Size % 2 == 0)
-        upper_bound = Size / 2 - 1;
-    else
-        upper_bound = Size / 2;
+		if (arrSize % 2 == 0)
+			upper_bound = arrSize / 2 - 1;
+		else
+			upper_bound = arrSize / 2;
 
-    for (int i = 0; i < Size; i++) 
-    {
-        if (i % 2 == 0) // четная итерация
+		double t1 = omp_get_wtime();
+		for (int i = 0; i < arrSize; i++)
+		{
+			if (i % 2 == 0)
 #pragma omp parallel for
-            for (int j = 0; j < Size / 2; j++)
-            {
-                if (pData[2 * j] > pData[2 * j + 1]) {
-                    temp = pData[2 * j];
-                    pData[2 * j] = pData[2 * j + 1];
-                    pData[2 * j + 1] = temp;
-                }
-            }
-        else // нечетная итерация
+				for (int j = 0; j < arrSize / 2; j++)
+				{
+					if (arr[2 * j] > arr[2 * j + 1]) {
+						temp = arr[2 * j];
+						arr[2 * j] = arr[2 * j + 1];
+						arr[2 * j + 1] = temp;
+					}
+				}
+			else
 #pragma omp parallel for
-            for (int j = 0; j < upper_bound; j++)
-            {
-                if (pData[2 * j + 1] > pData[2 * j + 2]) {
-                    temp = pData[2 * j + 1];
-                    pData[2 * j + 1] = pData[2 * j + 2];
-                    pData[2 * j + 2] = temp;
-                }
-            }
-    }
-}
-	
+				for (int j = 0; j < upper_bound; j++)
+				{
+					if (arr[2 * j + 1] > arr[2 * j + 2]) {
+						temp = arr[2 * j + 1];
+						arr[2 * j + 1] = arr[2 * j + 2];
+						arr[2 * j + 2] = temp;
+					}
+				}
+		}
+		double t2 = omp_get_wtime();
+
+		cout << "is sorted? -> " << IsSorted1(arr, arrSize) << endl;
+		cout << "time OddEven parallel: " << t2 - t1 << endl << endl;
+	}
+
+	// temp sorts
+	/*
 	//--------------------Сортировка Шелла-----------------------
 
-// Последовательный алгоритм сортировки Шелла 
-void ShellSort(double* pData, int n)
-{
-    int incr = n / 2;
-    int j;
+	// Последовательный алгоритм сортировки Шелла 
+	static void ShellSort(double* pData, int n)
+	{
+		int incr = n / 2;
+		int j;
 
-    while (incr > 0)
-    {
-        for (int i = incr + 1; i < n; i++) {
-            j = i - incr;
-            while (j >= 0)
-                if (pData[j] > pData[j + incr])
-                {
-                    swap(pData[j], pData[j + incr]);
-                    j = j - incr;
-                }
-                else j = -1;
-        }
-        incr = incr / 2;
-    }
-}
+		while (incr > 0)
+		{
+			for (int i = incr + 1; i < n; i++) {
+				j = i - incr;
+				while (j >= 0)
+					if (pData[j] > pData[j + incr])
+					{
+						swap(pData[j], pData[j + incr]);
+						j = j - incr;
+					}
+					else j = -1;
+			}
+			incr = incr / 2;
+		}
+	}
 
-int ThreadNum; // Количество потоков 
-int ThreadID; // Номер потока 
-int DimSize; // Размерность гиперкуба 
-
-// Создадим локальные копии переменной ThreadID
+	int ThreadNum; // Количество потоков 
+	int ThreadID; // Номер потока 
+	int DimSize; // Размерность гиперкуба 
+	
+				 // Создадим локальные копии переменной ThreadID
 #pragma omp threadprivate(ThreadID)
 
-// Определим количество потоков ThreadNum и размерность виртуального
-// гиперкуба DimSize, а также идентификатор потока ThreadID
-void InitializeParallelSections()
-{
+				 // Определим количество потоков ThreadNum и размерность виртуального
+				 // гиперкуба DimSize, а также идентификатор потока ThreadID
+	static void InitializeParallelSections()
+	{
 #pragma omp parallel 
-    {
-        ThreadID = omp_get_thread_num();
+		{
+			ThreadID = omp_get_thread_num();
 #pragma omp single 
-        ThreadNum = omp_get_num_threads(); 
-    }
-    DimSize = int(log10(double(ThreadNum)) / log10(2.0)) + 1;
-}
+			ThreadNum = omp_get_num_threads();
+		}
+		DimSize = int(log10(double(ThreadNum)) / log10(2.0)) + 1;
+	}
 
-// Функция для слияния отсортированных блоков 
-void MergeBlocks(double* pData, int Index1, int BlockSize1, int Index2, int BlockSize2)
-{
-    double* pTempArray = new double[BlockSize1 + BlockSize2];
-    int i1 = Index1, i2 = Index2, curr = 0;
+	// Функция для слияния отсортированных блоков 
+	static void MergeBlocks(double* pData, int Index1, int BlockSize1, int Index2, int BlockSize2)
+	{
+		double* pTempArray = new double[BlockSize1 + BlockSize2];
+		int i1 = Index1, i2 = Index2, curr = 0;
 
-    while ((i1 < Index1 + BlockSize1) && (i2 < Index2 + BlockSize2))
-    {
-        if (pData[i1] < pData[i2]) 
-            pTempArray[curr++] = pData[i1++];
-        else 
-            pTempArray[curr++] = pData[i2++];
-    }
+		while ((i1 < Index1 + BlockSize1) && (i2 < Index2 + BlockSize2))
+		{
+			if (pData[i1] < pData[i2])
+				pTempArray[curr++] = pData[i1++];
+			else
+				pTempArray[curr++] = pData[i2++];
+		}
 
-    while (i1 < Index1 + BlockSize1) 
-        pTempArray[curr++] = pData[i1++];
+		while (i1 < Index1 + BlockSize1)
+			pTempArray[curr++] = pData[i1++];
 
-    while (i2 < Index2 + BlockSize2) 
-        pTempArray[curr++] = pData[i2++];
+		while (i2 < Index2 + BlockSize2)
+			pTempArray[curr++] = pData[i2++];
 
-    for (int i = 0; i < BlockSize1 + BlockSize2; i++)
-        pData[Index1 + i] = pTempArray[i];
+		for (int i = 0; i < BlockSize1 + BlockSize2; i++)
+			pData[Index1 + i] = pTempArray[i];
 
-    delete[] pTempArray;
-}
+		delete[] pTempArray;
+	}
 
-// Функция для проверки упорядоченности массива
-bool IsSorted(double* pData, int Size) {
-    bool res = true;
+	// Функция для проверки упорядоченности массива
+	static bool IsSorted(double* pData, int Size) {
+		bool res = true;
 
-    for (int i = 1; (i < Size) && (res); i++) {
-        if (pData[i] < pData[i - 1])
-            res = false;
-    }
+		for (int i = 1; (i < Size) && (res); i++) {
+			if (pData[i] < pData[i - 1])
+				res = false;
+		}
 
-    return res;
-}
+		return res;
+	}
 
-// Функция для вычисления номера блока в гиперкубе 
-int GrayCode(int RingID, int DimSize)
-{
-    if ((RingID == 0) && (DimSize == 1))
-        return 0;
-    if ((RingID == 1) && (DimSize == 1))
-        return 1;
+	// Функция для вычисления номера блока в гиперкубе 
+	static int GrayCode(int RingID, int DimSize)
+	{
+		if ((RingID == 0) && (DimSize == 1))
+			return 0;
+		if ((RingID == 1) && (DimSize == 1))
+			return 1;
 
-    int res;
+		int res;
 
-    if (RingID < (1 << (DimSize - 1))) 
-        return res = GrayCode(RingID, DimSize - 1);
-    else 
-        return res = (1 << (DimSize - 1)) + GrayCode((1 << DimSize) - 1 - RingID, DimSize - 1);
-}
+		if (RingID < (1 << (DimSize - 1)))
+			return res = GrayCode(RingID, DimSize - 1);
+		else
+			return res = (1 << (DimSize - 1)) + GrayCode((1 << DimSize) - 1 - RingID, DimSize - 1);
+	}
 
-// Функция для вычисления линейного номера блока 
-int ReverseGrayCode(int CubeID, int DimSize)
-{
-    for (int i = 0; i < (1 << DimSize); i++)
-    {
-        if (CubeID == GrayCode(i, DimSize))
-            return i;
-    }
-}
+	// Функция для вычисления линейного номера блока 
+	static int ReverseGrayCode(int CubeID, int DimSize)
+	{
+		for (int i = 0; i < (1 << DimSize); i++)
+		{
+			if (CubeID == GrayCode(i, DimSize))
+				return i;
+		}
+	}
 
-// Функция для определения пар блоков 
-void SetBlockPairs(int* BlockPairs, int Iter)
-{
-    int PairNum = 0, FirstValue, SecondValue;
-    bool Exist;
+	// Функция для определения пар блоков 
+	static void SetBlockPairs(int* BlockPairs, int Iter)
+	{
+		int PairNum = 0, FirstValue, SecondValue;
+		bool Exist;
 
-    for (int i = 0; i < 2 * ThreadNum; i++)
-    {
-        FirstValue = GrayCode(i, DimSize);
-        Exist = false;
+		for (int i = 0; i < 2 * ThreadNum; i++)
+		{
+			FirstValue = GrayCode(i, DimSize);
+			Exist = false;
 
-        for (int j = 0; (j < PairNum) && (!Exist); j++)
-            if (BlockPairs[2 * j + 1] == FirstValue)
-                Exist = true;
+			for (int j = 0; (j < PairNum) && (!Exist); j++)
+				if (BlockPairs[2 * j + 1] == FirstValue)
+					Exist = true;
 
-        if (!Exist) {
-            SecondValue = FirstValue^(1 << (DimSize - Iter - 1));
-            BlockPairs[2 * PairNum] = FirstValue;
-            BlockPairs[2 * PairNum + 1] = SecondValue;
-            PairNum++;
-        }
-    }
-}
+			if (!Exist) {
+				SecondValue = FirstValue ^ (1 << (DimSize - Iter - 1));
+				BlockPairs[2 * PairNum] = FirstValue;
+				BlockPairs[2 * PairNum + 1] = SecondValue;
+				PairNum++;
+			}
+		}
+	}
 
-// Функция поиска парного блока для текущего потока 
-int FindMyPair(int* BlockPairs, int ThreadID, int Iter)
-{
-    int BlockID = 0, index, result;
-    for (int i = 0; i < ThreadNum; i++)
-    {
-        BlockID = BlockPairs[2 * i];
-        if (Iter == 0) 
-            index = BlockID % (1 << (DimSize - Iter - 1));
+	// Функция поиска парного блока для текущего потока 
+	static int FindMyPair(int* BlockPairs, int ThreadID, int Iter)
+	{
+		int BlockID = 0, index, result;
+		for (int i = 0; i < ThreadNum; i++)
+		{
+			BlockID = BlockPairs[2 * i];
+			if (Iter == 0)
+				index = BlockID % (1 << (DimSize - Iter - 1));
 
-        if ((Iter > 0) && (Iter < DimSize - 1)) 
-            index = ((BlockID >> (DimSize - Iter)) << (DimSize - Iter - 1)) | (BlockID % (1 << (DimSize - Iter - 1)));
-        
-        if (Iter == DimSize - 1) 
-            index = BlockID >> 1;
+			if ((Iter > 0) && (Iter < DimSize - 1))
+				index = ((BlockID >> (DimSize - Iter)) << (DimSize - Iter - 1)) | (BlockID % (1 << (DimSize - Iter - 1)));
 
-        if (index == ThreadID) {
-            result = i;
-            break;
-        }
-    }
-    return result;
-}
+			if (Iter == DimSize - 1)
+				index = BlockID >> 1;
 
-void SerialQuickSort(double* pData, int first, int last);
+			if (index == ThreadID) {
+				result = i;
+				break;
+			}
+		}
+		return result;
+	}
 
-// "Сравнить и разделить"
-// Все элементы из двух массивов делим так, чтобы
-// все элементы в первом блоке были меньше любого
-// элемента второго блока.
-void CompareSplitBlocks(double* pData, int FirstBlockBegin, int FirstBlockSize, int SecondBlockBegin, int SecondBlockSize)
-{
-    int TotalSize = FirstBlockSize + SecondBlockSize;
-    double* pTempBlock = new double[TotalSize];
+	static void SerialQuickSort(double* pData, int first, int last);
 
-    for (int i = 0; i < FirstBlockSize; i++)
-        pTempBlock[i] = pData[i + FirstBlockBegin];
+	// "Сравнить и разделить"
+	// Все элементы из двух массивов делим так, чтобы
+	// все элементы в первом блоке были меньше любого
+	// элемента второго блока.
+	static void CompareSplitBlocks(double* pData, int FirstBlockBegin, int FirstBlockSize, int SecondBlockBegin, int SecondBlockSize)
+	{
+		int TotalSize = FirstBlockSize + SecondBlockSize;
+		double* pTempBlock = new double[TotalSize];
 
-    for (int i = FirstBlockSize; i < TotalSize; i++)
-        pTempBlock[i] = pData[i - FirstBlockSize + SecondBlockBegin];
+		for (int i = 0; i < FirstBlockSize; i++)
+			pTempBlock[i] = pData[i + FirstBlockBegin];
 
-    double sum = 0;
-    int count = 0;
+		for (int i = FirstBlockSize; i < TotalSize; i++)
+			pTempBlock[i] = pData[i - FirstBlockSize + SecondBlockBegin];
 
-    for (int i = 0; i < TotalSize; i++) {
-        sum += pTempBlock[i];
-        count++;
-    }
+		double sum = 0;
+		int count = 0;
 
-    double average = sum / count;
+		for (int i = 0; i < TotalSize; i++) {
+			sum += pTempBlock[i];
+			count++;
+		}
 
-    int Ind1 = 0, Ind2 = 0;
+		double average = sum / count;
 
-    for (int i = 0; i < TotalSize; i++)
-    {
-        // Если элемент больше среднего значения блока,
-        // пробуем поместить его в первый блок.
-        if (pTempBlock[i] < average) {
-            // Если в первом блоке есть место, помещаем
-            // элемент в первый блок.
-            if (Ind1 < FirstBlockSize)
-            {
-                pData[FirstBlockBegin + Ind1] = pTempBlock[i];
-                Ind1++;
-            }
-            // Иначе во второй.
-            else
-            {
-                pData[SecondBlockBegin + Ind2] = pTempBlock[i];
-                Ind2++;
-            }
-        }
-        // Если больше, пробуем поместить во второй блок.
-        else {
-            // Если во втором блоке есть место, помещаем
-            // элемент во второй блок.
-            if (Ind2 < SecondBlockSize)
-            {
-                pData[SecondBlockBegin + Ind2] = pTempBlock[i];
-                Ind2++;
-            }
-            // Иначе в первый.
-            else
-            {
-                pData[FirstBlockBegin + Ind1] = pTempBlock[i];
-                Ind1++;
-            }
-        }
-    }
-}
+		int Ind1 = 0, Ind2 = 0;
 
-// Функция для параллельного алгоритма Шелла 
-void ParallelShellSort(double* pData, int Size)
-{
-    InitializeParallelSections();
+		for (int i = 0; i < TotalSize; i++)
+		{
+			// Если элемент больше среднего значения блока,
+			// пробуем поместить его в первый блок.
+			if (pTempBlock[i] < average) {
+				// Если в первом блоке есть место, помещаем
+				// элемент в первый блок.
+				if (Ind1 < FirstBlockSize)
+				{
+					pData[FirstBlockBegin + Ind1] = pTempBlock[i];
+					Ind1++;
+				}
+				// Иначе во второй.
+				else
+				{
+					pData[SecondBlockBegin + Ind2] = pTempBlock[i];
+					Ind2++;
+				}
+			}
+			// Если больше, пробуем поместить во второй блок.
+			else {
+				// Если во втором блоке есть место, помещаем
+				// элемент во второй блок.
+				if (Ind2 < SecondBlockSize)
+				{
+					pData[SecondBlockBegin + Ind2] = pTempBlock[i];
+					Ind2++;
+				}
+				// Иначе в первый.
+				else
+				{
+					pData[FirstBlockBegin + Ind1] = pTempBlock[i];
+					Ind1++;
+				}
+			}
+		}
+	}
 
-    // Массив индексов первых элемен-тов блоков данных.
-    // Т.е. i-й блок данных начинается с элемента Index[i] 
-    // исходного массива.
-    int* Index = new int[2 * ThreadNum];
+	// Функция для параллельного алгоритма Шелла 
+	static void ParallelShellSort(double* pData, int Size)
+	{
+		InitializeParallelSections();
 
-    // Массив размеров блоков данных
-    int* BlockSize = new int[2 * ThreadNum];
+		// Массив индексов первых элемен-тов блоков данных.
+		// Т.е. i-й блок данных начинается с элемента Index[i] 
+		// исходного массива.
+		int* Index = new int[2 * ThreadNum];
 
-    // Массив пар номеров блоков в структуре гиперкуба
-    int* BlockPairs = new int[2 * ThreadNum];
+		// Массив размеров блоков данных
+		int* BlockSize = new int[2 * ThreadNum];
 
-    for (int i = 0; i < 2 * ThreadNum; i++)
-    {
-        Index[i] = int((i * Size) / double(2 * ThreadNum));
-        if (i < 2 * ThreadNum - 1) 
-            BlockSize[i] = int(((i + 1) * Size) / double(2 * ThreadNum)) - Index[i];
-        else 
-            BlockSize[i] = Size - Index[i];
-    }
+		// Массив пар номеров блоков в структуре гиперкуба
+		int* BlockPairs = new int[2 * ThreadNum];
 
-    // Итерации алгоритма Шелла 
-   for (int Iter = 0; (Iter < DimSize) && (!IsSorted(pData, Size)); Iter++)
-    {
-        // Определение пар блоков 
-        SetBlockPairs(BlockPairs, Iter);
+		for (int i = 0; i < 2 * ThreadNum; i++)
+		{
+			Index[i] = int((i * Size) / double(2 * ThreadNum));
+			if (i < 2 * ThreadNum - 1)
+				BlockSize[i] = int(((i + 1) * Size) / double(2 * ThreadNum)) - Index[i];
+			else
+				BlockSize[i] = Size - Index[i];
+		}
 
-        // Операция "Сравнить и разделить" 
+		// Итерации алгоритма Шелла 
+		for (int Iter = 0; (Iter < DimSize) && (!IsSorted(pData, Size)); Iter++)
+		{
+			// Определение пар блоков 
+			SetBlockPairs(BlockPairs, Iter);
+
+			// Операция "Сравнить и разделить" 
 #pragma omp parallel 
-        {
-            int MyPairNum = FindMyPair(BlockPairs, ThreadID, Iter);
-            int FirstBlock = ReverseGrayCode(BlockPairs[2 * MyPairNum], DimSize);
-            int SecondBlock = ReverseGrayCode(BlockPairs[2 * MyPairNum + 1], DimSize);
+			{
+				int MyPairNum = FindMyPair(BlockPairs, ThreadID, Iter);
+				int FirstBlock = ReverseGrayCode(BlockPairs[2 * MyPairNum], DimSize);
+				int SecondBlock = ReverseGrayCode(BlockPairs[2 * MyPairNum + 1], DimSize);
 
-            CompareSplitBlocks(pData, Index[FirstBlock], BlockSize[FirstBlock], Index[SecondBlock], BlockSize[SecondBlock]);
-        }
-    }
+				CompareSplitBlocks(pData, Index[FirstBlock], BlockSize[FirstBlock], Index[SecondBlock], BlockSize[SecondBlock]);
+			}
+		}
 
-    // Локальная сортировка блоков данных
+		// Локальная сортировка блоков данных
 #pragma omp parallel
-    {
-        int BlockID = ReverseGrayCode(ThreadNum + ThreadID, DimSize);
-        SerialQuickSort(pData, Index[BlockID], Index[BlockID] + BlockSize[BlockID] - 1);
-        BlockID = ReverseGrayCode(ThreadID, DimSize);
-        SerialQuickSort(pData, Index[BlockID], Index[BlockID] + BlockSize[BlockID] - 1);
-    }
+		{
+			int BlockID = ReverseGrayCode(ThreadNum + ThreadID, DimSize);
+			SerialQuickSort(pData, Index[BlockID], Index[BlockID] + BlockSize[BlockID] - 1);
+			BlockID = ReverseGrayCode(ThreadID, DimSize);
+			SerialQuickSort(pData, Index[BlockID], Index[BlockID] + BlockSize[BlockID] - 1);
+		}
 
-    // Чет-нечетная перестановка 
-    int Iter = 1;
-    while (!IsSorted(pData, Size))
-    {
+		// Чет-нечетная перестановка 
+		int Iter = 1;
+		while (!IsSorted(pData, Size))
+		{
 #pragma omp parallel 
-        {
-            if (Iter % 2 == 0) {
-                // четная итерация 
-                MergeBlocks(pData, Index[2 * ThreadID], BlockSize[2 * ThreadID], Index[2 * ThreadID + 1], BlockSize[2 * ThreadID + 1]);
-            }
-            else {
-                // нечетная итерация 
-                if (ThreadID < ThreadNum - 1)
-                    MergeBlocks(pData, Index[2 * ThreadID + 1], BlockSize[2 * ThreadID + 1], Index[2 * ThreadID + 2], BlockSize[2 * ThreadID + 2]);
-            }
-        }
-        Iter++;
-    }
-    delete[] Index;
-    delete[] BlockSize;
-    delete[] BlockPairs;
-}
-//-----------------------------------------------------------
+			{
+				if (Iter % 2 == 0) {
+					// четная итерация 
+					MergeBlocks(pData, Index[2 * ThreadID], BlockSize[2 * ThreadID], Index[2 * ThreadID + 1], BlockSize[2 * ThreadID + 1]);
+				}
+				else {
+					// нечетная итерация 
+					if (ThreadID < ThreadNum - 1)
+						MergeBlocks(pData, Index[2 * ThreadID + 1], BlockSize[2 * ThreadID + 1], Index[2 * ThreadID + 2], BlockSize[2 * ThreadID + 2]);
+				}
+			}
+			Iter++;
+		}
+		delete[] Index;
+		delete[] BlockSize;
+		delete[] BlockPairs;
+	}
+	//-----------------------------------------------------------
 
 	//--------------------Быстрая сортировка---------------------
 
-// Последовательный алгоритм быстрой сортировки
-void SerialQuickSort(double* pData, int first, int last) 
-{
-    while (first < last) 
-    {
-        int PivotPos = first;
-        double Pivot = pData[first];
-        for (int i = first + 1; i <= last; i++) 
-        {
-            if (pData[i] < Pivot) 
-            {
-                if (i != PivotPos + 1)
-                    swap(pData[i], pData[PivotPos + 1]);
-                PivotPos++;
-            }
-        }
-        swap(pData[first], pData[PivotPos]);
+	// Последовательный алгоритм быстрой сортировки
+	static void SerialQuickSort(double* pData, int first, int last)
+	{
+		while (first < last)
+		{
+			int PivotPos = first;
+			double Pivot = pData[first];
+			for (int i = first + 1; i <= last; i++)
+			{
+				if (pData[i] < Pivot)
+				{
+					if (i != PivotPos + 1)
+						swap(pData[i], pData[PivotPos + 1]);
+					PivotPos++;
+				}
+			}
+			swap(pData[first], pData[PivotPos]);
 
-        if (PivotPos - first < last - PivotPos) {
-            SerialQuickSort(pData, first, PivotPos - 1);
-            first = PivotPos + 1;
-        }
-        else {
-            SerialQuickSort(pData, PivotPos + 1, last);
-            last = PivotPos - 1;
-        }
-    }
-}
+			if (PivotPos - first < last - PivotPos) {
+				SerialQuickSort(pData, first, PivotPos - 1);
+				first = PivotPos + 1;
+			}
+			else {
+				SerialQuickSort(pData, PivotPos + 1, last);
+				last = PivotPos - 1;
+			}
+		}
+	}
 
-// Функция для операции "Сравнить и разделить" 
-void qCompareSplitBlocks(double* pFirstBlock, int& FirstBlockSize, double* pSecondBlock, int& SecondBlockSize, double Pivot)
-{
-    int TotalSize = FirstBlockSize + SecondBlockSize;
-    double* pTempBlock = new double[TotalSize];
-    int LastMin = 0, FirstMax = TotalSize - 1;
+	// Функция для операции "Сравнить и разделить" 
+	static void qCompareSplitBlocks(double* pFirstBlock, int& FirstBlockSize, double* pSecondBlock, int& SecondBlockSize, double Pivot)
+	{
+		int TotalSize = FirstBlockSize + SecondBlockSize;
+		double* pTempBlock = new double[TotalSize];
+		int LastMin = 0, FirstMax = TotalSize - 1;
 
-    for (int i = 0; i < FirstBlockSize; i++) 
-    {
-        if (pFirstBlock[i] < Pivot) 
-            pTempBlock[LastMin++] = pFirstBlock[i];
-        else 
-            pTempBlock[FirstMax--] = pFirstBlock[i];
-    }
-    
-    for (int i = 0; i < SecondBlockSize; i++) {
-        if (pSecondBlock[i] < Pivot) 
-            pTempBlock[LastMin++] = pSecondBlock[i];
-        else 
-            pTempBlock[FirstMax--] = pSecondBlock[i];
-    }
+		for (int i = 0; i < FirstBlockSize; i++)
+		{
+			if (pFirstBlock[i] < Pivot)
+				pTempBlock[LastMin++] = pFirstBlock[i];
+			else
+				pTempBlock[FirstMax--] = pFirstBlock[i];
+		}
 
-    FirstBlockSize = LastMin;
-    SecondBlockSize = TotalSize - LastMin;
+		for (int i = 0; i < SecondBlockSize; i++) {
+			if (pSecondBlock[i] < Pivot)
+				pTempBlock[LastMin++] = pSecondBlock[i];
+			else
+				pTempBlock[FirstMax--] = pSecondBlock[i];
+		}
 
-    for (int i = 0; i < FirstBlockSize; i++) 
-        pFirstBlock[i] = pTempBlock[i];
+		FirstBlockSize = LastMin;
+		SecondBlockSize = TotalSize - LastMin;
 
-    for (int i = 0; i < SecondBlockSize; i++) 
-        pSecondBlock[i] = pTempBlock[FirstBlockSize + i];
-      
-    delete[] pTempBlock;
-}
+		for (int i = 0; i < FirstBlockSize; i++)
+			pFirstBlock[i] = pTempBlock[i];
 
-// Функция для определения пар блоков 
-void qSetBlockPairs(int* BlockPairs, int Iter)
-{
-    int PairNum = 0, FirstValue, SecondValue;
-    bool Exist;
+		for (int i = 0; i < SecondBlockSize; i++)
+			pSecondBlock[i] = pTempBlock[FirstBlockSize + i];
 
-    for (int i = 0; i < 2 * ThreadNum; i++)
-    {
-        FirstValue = i;
-        Exist = false;
+		delete[] pTempBlock;
+	}
 
-        for (int j = 0; (j < PairNum) && (!Exist); j++)
-            if (BlockPairs[2 * j + 1] == FirstValue) 
-                Exist = true;
+	// Функция для определения пар блоков 
+	static void qSetBlockPairs(int* BlockPairs, int Iter)
+	{
+		int PairNum = 0, FirstValue, SecondValue;
+		bool Exist;
 
-        if (!Exist) {
-            SecondValue = FirstValue^(1 << (DimSize - Iter - 1));
-            BlockPairs[2 * PairNum] = FirstValue;
-            BlockPairs[2 * PairNum + 1] = SecondValue;
-            PairNum++;
-        }
-    }
-}
+		for (int i = 0; i < 2 * ThreadNum; i++)
+		{
+			FirstValue = i;
+			Exist = false;
 
-double MaxElementOfArray(double* pData, int Size);
+			for (int j = 0; (j < PairNum) && (!Exist); j++)
+				if (BlockPairs[2 * j + 1] == FirstValue)
+					Exist = true;
 
-double MinElementOfArray(double* pData, int Size);
+			if (!Exist) {
+				SecondValue = FirstValue ^ (1 << (DimSize - Iter - 1));
+				BlockPairs[2 * PairNum] = FirstValue;
+				BlockPairs[2 * PairNum + 1] = SecondValue;
+				PairNum++;
+			}
+		}
+	}
 
-// Параллельный алгоритм быстрой сортировки
-void ParallelQuickSort(double* pData, int Size) 
-{
-    InitializeParallelSections();
-    double** pTempData = new double* [2 * ThreadNum]; // Система буферов
-    int* BlockSize = new int[2 * ThreadNum];
-    double* Pivots = new double[ThreadNum];
-    int* BlockPairs = new int[2 * ThreadNum];
+	static double MaxElementOfArray(double* pData, int Size);
 
-    double AvailableThreadNum = 2 * ThreadNum;
-    double CurrentSize = Size;
+	static double MinElementOfArray(double* pData, int Size);
 
-    for (int i = 0; i < 2 * ThreadNum; i++)
-    {
-        pTempData[i] = new double[Size];
+	// Параллельный алгоритм быстрой сортировки
+	static void ParallelQuickSort(double* pData, int Size)
+	{
+		InitializeParallelSections();
+		double** pTempData = new double*[2 * ThreadNum]; // Система буферов
+		int* BlockSize = new int[2 * ThreadNum];
+		double* Pivots = new double[ThreadNum];
+		int* BlockPairs = new int[2 * ThreadNum];
 
-        BlockSize[i] = ceil(CurrentSize / AvailableThreadNum);
+		double AvailableThreadNum = 2 * ThreadNum;
+		double CurrentSize = Size;
 
-        CurrentSize = CurrentSize - BlockSize[i];
-        AvailableThreadNum--;
-    }
+		for (int i = 0; i < 2 * ThreadNum; i++)
+		{
+			pTempData[i] = new double[Size];
 
-    int ind = 0;
-    for (int i = 0; i < 2 * ThreadNum; i++)
-        for (int j = 0; j < BlockSize[i]; j++)
-            pTempData[i][j] = pData[ind++];
+			BlockSize[i] = ceil(CurrentSize / AvailableThreadNum);
 
-    double MaxValue = MaxElementOfArray(pData, Size);
-    double MinValue = MinElementOfArray(pData, Size);
+			CurrentSize = CurrentSize - BlockSize[i];
+			AvailableThreadNum--;
+		}
 
-    // Итерации быстрой сортировки 
-    for (int i = 0; i < DimSize; i++) {
-        // Определение ведущих значений 
-        for (int j = 0; j < ThreadNum; j++)
-        {
-            Pivots[j] = (MaxValue + MinValue) / 2;
-        }
+		int ind = 0;
+		for (int i = 0; i < 2 * ThreadNum; i++)
+			for (int j = 0; j < BlockSize[i]; j++)
+				pTempData[i][j] = pData[ind++];
 
-        for (int iter = 1; iter <= i; iter++)
-            for (int j = 0; j < ThreadNum; j++)
-            {
-                Pivots[j] = Pivots[j] - pow(-1.0f, j / ((2 * ThreadNum) >> (iter + 1))) * (MaxValue - MinValue) / (2 << iter);
-            }
+		double MaxValue = MaxElementOfArray(pData, Size);
+		double MinValue = MinElementOfArray(pData, Size);
 
-        // Определение пар блоков 
-        qSetBlockPairs(BlockPairs, i);
+		// Итерации быстрой сортировки 
+		for (int i = 0; i < DimSize; i++) {
+			// Определение ведущих значений 
+			for (int j = 0; j < ThreadNum; j++)
+			{
+				Pivots[j] = (MaxValue + MinValue) / 2;
+			}
+
+			for (int iter = 1; iter <= i; iter++)
+				for (int j = 0; j < ThreadNum; j++)
+				{
+					Pivots[j] = Pivots[j] - pow(-1.0f, j / ((2 * ThreadNum) >> (iter + 1))) * (MaxValue - MinValue) / (2 << iter);
+				}
+
+			// Определение пар блоков 
+			qSetBlockPairs(BlockPairs, i);
 
 #pragma omp parallel 
-        {
-            int MyPair = FindMyPair(BlockPairs, ThreadID, i);
-            int FirstBlock = BlockPairs[2 * MyPair];
-            int SecondBlock = BlockPairs[2 * MyPair + 1];
+			{
+				int MyPair = FindMyPair(BlockPairs, ThreadID, i);
+				int FirstBlock = BlockPairs[2 * MyPair];
+				int SecondBlock = BlockPairs[2 * MyPair + 1];
 
-            qCompareSplitBlocks(pTempData[FirstBlock], BlockSize[FirstBlock], pTempData[SecondBlock], BlockSize[SecondBlock], Pivots[ThreadID]);
-        }
-    }
-    
-    // Локальная сортировка 
+				qCompareSplitBlocks(pTempData[FirstBlock], BlockSize[FirstBlock], pTempData[SecondBlock], BlockSize[SecondBlock], Pivots[ThreadID]);
+			}
+		}
+
+		// Локальная сортировка 
 #pragma omp parallel 
-    {
-        if (BlockSize[2 * ThreadID] > 0)
-            SerialQuickSort(pTempData[2 * ThreadID], 0, BlockSize[2 * ThreadID] - 1);
-        if (BlockSize[2 * ThreadID + 1] > 0)
-            SerialQuickSort(pTempData[2 * ThreadID + 1], 0, BlockSize[2 * ThreadID + 1] - 1);
-    }
+		{
+			if (BlockSize[2 * ThreadID] > 0)
+				SerialQuickSort(pTempData[2 * ThreadID], 0, BlockSize[2 * ThreadID] - 1);
+			if (BlockSize[2 * ThreadID + 1] > 0)
+				SerialQuickSort(pTempData[2 * ThreadID + 1], 0, BlockSize[2 * ThreadID + 1] - 1);
+		}
 
-    ind = 0;
-    for (int i = 0; i < 2 * ThreadNum; i++)
-        for (int j = 0; (j < BlockSize[i]) && (ind < Size); j++)
-            pData[ind++] = pTempData[i][j];
-    
-    for (int i = 0; i < ThreadNum; i++)
-        delete[] pTempData[i];
+		ind = 0;
+		for (int i = 0; i < 2 * ThreadNum; i++)
+			for (int j = 0; (j < BlockSize[i]) && (ind < Size); j++)
+				pData[ind++] = pTempData[i][j];
 
-    delete[] pTempData;
-    delete[] BlockSize;
-    delete[] Pivots;
-    delete[] BlockPairs;
-}
-//-----------------------------------------------------------
+		for (int i = 0; i < ThreadNum; i++)
+			delete[] pTempData[i];
 
-double MaxElementOfArray(double* pData, int Size)
-{
-    double Max = pData[0];
+		delete[] pTempData;
+		delete[] BlockSize;
+		delete[] Pivots;
+		delete[] BlockPairs;
+	}
+	//-----------------------------------------------------------
 
-    for ( int i = 0; i < Size; i++)
-        if (pData[i] > Max) Max = pData[i];
+	static double MaxElementOfArray(double* pData, int Size)
+	{
+		double Max = pData[0];
 
-    return Max;
-}
+		for (int i = 0; i < Size; i++)
+			if (pData[i] > Max) Max = pData[i];
 
-double MinElementOfArray(double* pData, int Size)
-{
-    double Min = pData[0];
+		return Max;
+	}
 
-    for (int i = 0; i < Size; i++)
-        if (pData[i] < Min) Min = pData[i];
+	static double MinElementOfArray(double* pData, int Size)
+	{
+		double Min = pData[0];
 
-    return Min;
-}
+		for (int i = 0; i < Size; i++)
+			if (pData[i] < Min) Min = pData[i];
 
-void PrintArray(double* pData, int Size)
-{
-    for (int i = 0; i < Size; i++)
-        cout << pData[i] << " ";
-    cout << endl;
-}
+		return Min;
+	}
 
-void CopyArray(double* A, double* B, int n)
-{
-    for (int i = 0; i < n; i++)
-        B[i] = A[i];
-}
-	
-}
+	static void PrintArray(double* pData, int Size)
+	{
+		for (int i = 0; i < Size; i++)
+			cout << pData[i] << " ";
+		cout << endl;
+	}
+
+	static void CopyArray(double* A, double* B, int n)
+	{
+		for (int i = 0; i < n; i++)
+			B[i] = A[i];
+	}
+	*/
+
+	static double* initArr(int arrSize)
+	{
+		double* newArr = new double[arrSize];
+		for (int i = 0; i < arrSize; i++)
+			newArr[i] = rand();
+		return newArr;
+	}
+
+	static double* copyArr(double* arr, int arrSize)
+	{
+		double* newArr = new double[arrSize];
+		for (int i = 0; i < arrSize; i++)
+			newArr[i] = arr[i];
+		return newArr;
+	}
+
+	static void printArray(double* arr, int arrSize)
+	{
+		for (int i = 0; i < arrSize; i++)
+			cout << arr[i] << " ";
+		cout << endl;
+	}
+
+	static bool isSorted(double* arr, int arrSize) {
+		bool flag = true;
+		for (int i = 1; i < arrSize; i++)
+			if (arr[i] < arr[i - 1])
+			{
+				flag = false;
+			}
+		return flag;
+	}
+
+	static bool IsSorted1(double* pData, int Size) {
+		bool res = true;
+
+		for (int i = 1; (i < Size) && (res); i++) {
+			if (pData[i] < pData[i - 1])
+				res = true;
+		}
+
+		return res;
+	}
+};
+
+
 
 void main()
 {
 	// Matrixi
 	/*int** A = Matrixes::matr(siz, siz, 2);
 	int** B = Matrixes::matr(siz, siz, 2);
-	Matrixes::linear(A, B, siz, siz, siz); 
+	Matrixes::linear(A, B, siz, siz, siz);
 	Matrixes::tape(A, B, siz, siz, siz);
 	Matrixes::BlockAr(A, B);*/
-	
+
 	// Jakobi
 	//int n = 8;
 	//double** A = JakobiMethod::initMatr(n);
@@ -1267,7 +1324,7 @@ void main()
 	F[1] = -9;
 	F[2] = 5;
 	F[3] = 2;*/
-	
+
 	// matr 8x8 file for yakobi
 	/*F[0] = 6;
 	F[1] = -9;
@@ -1278,63 +1335,67 @@ void main()
 	F[6] = 5;
 	F[7] = 2;*/
 
-	
+
 	// simpson
-	cout << Simpson::methodSimpson(-3.5, 3.5) << endl;
-	cout << Simpson::methodSimpsonParalell(-3.5, 3.5) << endl;
+	//cout << Simpson::methodSimpson(-3.5, 3.5) << endl;
+	//cout << Simpson::methodSimpsonParalell(-3.5, 3.5) << endl;
 
-int arrSize = 10000;
-double* arr = initArr(arrSize);
-double* arrCopied = copyArr(arr, arrSize)
+	int arrSize = 80000;
+	cout << "arr size: " << arrSize << endl << endl;
+	double* arr = Sort::initArr(arrSize);
+	double* arrCopied = Sort::copyArr(arr, arrSize);
 
-OddEvenSort(arr, arrSize);
-ParallelOddEvenSort(arr, arrSize);
+	/*
+	Sort::printArray(arr, arrSize);
+	cout << endl;
+	
+	Sort::printArray(arrCopied, arrSize);
+	cout << endl;*/
+
+	cout << Sort::isSorted(arr, arrSize) << " - arr sorted?" << endl;
+	cout << Sort::isSorted(arrCopied, arrSize) << " - arrCopied sorted?\n\n" << endl;
+
+	Sort::OddEvenSort(arr, arrSize);
+	Sort::ParallelOddEvenSort(arrCopied, arrSize);
+
+	//cout << endl << endl << "IsSorted1 >>>>>>" << Sort::IsSorted1(arrCopied, arrSize) << endl;
+
+	/*Sort::printArray(arr, arrSize);
+	Sort::printArray(arrCopied, arrSize);*/
+	//Sort::OddEvenSort(arr, arrSize);
+	//Sort::ParallelOddEvenSort(arr, arrSize);
 	system("pause");
 
 }
 
-double* initArr (int arrSize)
-{
-double* newArr = new double [arrSize];
-for (int i = 0; i < arrSize; i++) 
-    newArr[i] = rand();
-return newArr;
-} 
 
-double* copyArr (double* arr, int arrSize)
-{
-double* newArr = new double [arrSize];
-for (int i = 0; i < arrSize; i++) 
-    newArr[i] = arr[i];
-return newArr;
-}
 
 /*
-	// создаем объект класса, чтобы можно было обращаться к его методам
-	// Matrixes matrix;
+// создаем объект класса, чтобы можно было обращаться к его методам
+// Matrixes matrix;
 
-	// Ленточное и линейное умножение в массивах
-	cout << omp_get_max_threads() << endl;
-	// Обращаяемся к статическим методам класса Matrixes
-
-
-	/*vector<vector<double>> A(3, vector<double>(3, 0.0));
-	A[0][0] = 8.0;
-	A[0][1] = 1.0;
-	A[0][2] = -4.0;
-	A[1][0] = 2.0;
-	A[1][1] = -6.0;
-	A[1][2] = 1.0;
-	A[2][0] = -1.0;
-	A[2][1] = 1.0;
-	A[2][2] = 4.0;
+// Ленточное и линейное умножение в массивах
+cout << omp_get_max_threads() << endl;
+// Обращаяемся к статическим методам класса Matrixes
 
 
-	vector<double> F(3, 0.0);
-	F[0] = 6.0;
-	F[1] = -9.0;
-	F[2] = 5.0;
-	vector<double> X (3, 0.0);
+/*vector<vector<double>> A(3, vector<double>(3, 0.0));
+A[0][0] = 8.0;
+A[0][1] = 1.0;
+A[0][2] = -4.0;
+A[1][0] = 2.0;
+A[1][1] = -6.0;
+A[1][2] = 1.0;
+A[2][0] = -1.0;
+A[2][1] = 1.0;
+A[2][2] = 4.0;
+
+
+vector<double> F(3, 0.0);
+F[0] = 6.0;
+F[1] = -9.0;
+F[2] = 5.0;
+vector<double> X (3, 0.0);
 
 double F[] = { 6.0, -9.0, 5.0 };
 
@@ -1346,9 +1407,9 @@ X[2] = 0.0;
 double** A = Matrixes::ReadMatrFile("inputMatr.txt");
 
 for (int i = 0; i < siz; i++) {
-	for (int j = 0; j < siz; j++)
-		cout << A[i][j] << " ";
-	cout << endl;
+for (int j = 0; j < siz; j++)
+cout << A[i][j] << " ";
+cout << endl;
 }
 
 
