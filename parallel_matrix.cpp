@@ -1283,7 +1283,30 @@ void main()
 	cout << Simpson::methodSimpson(-3.5, 3.5) << endl;
 	cout << Simpson::methodSimpsonParalell(-3.5, 3.5) << endl;
 
+int arrSize = 10000;
+double* arr = initArr(arrSize);
+double* arrCopied = copyArr(arr, arrSize)
+
+OddEvenSort(arr, arrSize);
+ParallelOddEvenSort(arr, arrSize);
 	system("pause");
+
+}
+
+double* initArr (int arrSize)
+{
+double* newArr = new double [arrSize];
+for (int i = 0; i < arrSize; i++) 
+    newArr[i] = rand();
+return newArr;
+} 
+
+double* copyArr (double* arr, int arrSize)
+{
+double* newArr = new double [arrSize];
+for (int i = 0; i < arrSize; i++) 
+    newArr[i] = arr[i];
+return newArr;
 }
 
 /*
