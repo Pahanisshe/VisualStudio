@@ -41,6 +41,10 @@ namespace TheorityVerityV0._1
                     document.Application.Selection.PageSetup.RightMargin = 20F;   // правое поле
                     document.Application.Selection.PageSetup.TopMargin = 20F;     // верхнее поле
                     document.Application.Selection.PageSetup.BottomMargin = 20F;  // нижнее поле 
+                    // ориентация страницы
+                    document.Application.Selection.PageSetup.Orientation = Microsoft.Office.Interop.Word.WdOrientation.wdOrientLandscape; // альбомная
+                    // добавляем второй столбец
+                    document.Application.Selection.PageSetup.TextColumns.Add();
 
                     AddTestToFile(document);
 
@@ -49,6 +53,11 @@ namespace TheorityVerityV0._1
                     progressBar1.Value = 0;
                     progressBar1.Visible = false;
                     //AddPicToFile(wordParag, document);
+                    // СОХРАНЕНИЕ ФАЙЛА С ТЕСТОМ
+                    Object fileName = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName) +
+                        "\\тест_" + countOfVariants.Value.ToString() + "_вариантов.doc";
+                    saveDoc(document, fileName);
+
                 }
                 catch (Exception Ex)
                 {
@@ -68,6 +77,29 @@ namespace TheorityVerityV0._1
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
+        }
+
+        private void saveDoc(word.Document document, Object fileName)
+        {
+            //Подготавливаем параметры для сохранения документа
+            Object fileFormat = word.WdSaveFormat.wdFormatDocument;
+            Object lockComments = false;
+            Object password = "";
+            Object addToRecentFiles = false;
+            Object writePassword = "";
+            Object readOnlyRecommended = false;
+            Object embedTrueTypeFonts = false;
+            Object saveNativePictureFormat = false;
+            Object saveFormsData = false;
+            Object saveAsAOCELetter = Type.Missing;
+            Object encoding = Type.Missing;
+            Object insertLineBreaks = Type.Missing;
+            Object allowSubstitutions = Type.Missing;
+            Object lineEnding = Type.Missing;
+            Object addBiDiMarks = Type.Missing;
+            document.SaveAs(ref fileName, ref fileFormat, ref lockComments, ref password, ref addToRecentFiles, ref writePassword,
+                            ref readOnlyRecommended, ref embedTrueTypeFonts, ref saveNativePictureFormat, ref saveFormsData,
+                            ref saveAsAOCELetter, ref encoding, ref insertLineBreaks, ref allowSubstitutions, ref lineEnding, ref addBiDiMarks);
         }
 
         // рабочий метод вставки картинки в таблицу, которая вставляется в параграф wordParag документа document
@@ -99,7 +131,11 @@ namespace TheorityVerityV0._1
         private void AddTestToFile(word.Document document)
         {
             word.Paragraph wordParag = document.Paragraphs.Add(Type.Missing);
-            string[] currentAnswers = new string[Convert.ToInt32(countOfVariants.Value)];
+
+            int n = Convert.ToInt32(countOfVariants.Value);
+            int m = 8;
+            string[,] answers = new string[n, m];
+
             for (int j = 0; j < countOfVariants.Value; j++)
             {
                 progressBar1.Value += 1;
@@ -132,12 +168,12 @@ namespace TheorityVerityV0._1
                 // КОЛИЧЕСТВО ТЕМ
                 int countThemes = 8;
                 // КОЛИЧЕСТВО ТЕМ
-                currentAnswers[j] = "";
+
                 string[] question = new string[4];
                 for (int i = 0; i < countThemes; i++)
                 {
                     question = GetQuestion(i, test.Test[i][0]);
-                    currentAnswers[j] += $"{i + 1}) " + question[5] + "; ";    // ответ запихнули
+                    answers[j,i] += question[5];    // ответ запихнули
                     AddTask(wordParag, question, i + 1, document);
                 }
 
@@ -146,10 +182,9 @@ namespace TheorityVerityV0._1
 
             }
 
-            wordParag.Range.Text += "\n ОТВЕТЫ:";
-            for (int j = 0; j < countOfVariants.Value; j++)
-                wordParag.Range.Text += $"{j+1} вариант: " + currentAnswers[j];
-            
+            addAnswersToTable(wordParag, document, Convert.ToInt32(countOfVariants.Value) + 1, 9, "Вариант", answers);
+
+
             GC.Collect();
         }
 
@@ -257,9 +292,12 @@ namespace TheorityVerityV0._1
                 wordParag.Range.Font.Bold = 0;
                 wordParag.Range.Paragraphs.Alignment = Microsoft.Office.Interop.Word.WdParagraphAlignment.wdAlignParagraphLeft;
 
-                
-                string currentAnswers = "";
+                int n = 8;
+                int m = 5;
+                string[,] answers = new string[n, m];
+
                 string[] question = new string[30];
+
                 for (int i = 0; i < countThemes; i++)
                 {
                     progressBar1.Value += 1;
@@ -267,17 +305,22 @@ namespace TheorityVerityV0._1
                     for (int j = 0; j < 5; j++)
                     {
                         question = GetQuestion(i, j + 1);
-                        currentAnswers += $"{i * 5 + j + 1}) " + question[5] + "; ";    // ответ запихнули
+                        answers[i,j] += $"{i * 5 + j + 1}) " + question[5];    // ответ запихнули
                         AddTask(wordParag, question, i * 5 + j + 1, document);
                     }
                 }
 
-                wordParag.Range.Text += "\nОтветы: " + currentAnswers;
+                addAnswersToTable(wordParag, document, 9, 6, "Задание", answers);
 
                 waitLabel.Text = "";
                 progressBar1.Value = 0;
                 progressBar1.Visible = false;
                 app.Visible = true;
+
+                // сохранение файла
+                Object fileName = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName) +
+                        "\\тест_все_задания.doc";
+                saveDoc(document, fileName);
             }
             catch (Exception Ex)
             {
@@ -290,6 +333,41 @@ namespace TheorityVerityV0._1
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
+        }
+
+        // запись ответов в таблицу
+        private void addAnswersToTable(Microsoft.Office.Interop.Word.Paragraph wordParag, word.Document document, int countStr, int countCol, string nameStr, string[,] answers)
+        {
+            // добавляем таблицу в параграф
+            word.Table table = document.Tables.Add(wordParag.Range, countStr, countCol, true, true);
+
+            // автоподбор ширины ячеек по размеру текста
+            //table.AutoFitBehavior(word.WdAutoFitBehavior.wdAutoFitContent);
+            // выравнивание текста в ячейках по центру
+            table.Range.ParagraphFormat.Alignment = word.WdParagraphAlignment.wdAlignParagraphCenter;
+
+            // выделяем ячейку (объявляем)
+            word.Range rngCell;
+            // заполняем 1 строку таблицы (номера заданий по каждому заданию)
+            for (int k = 2; k <= countCol; k++)
+            {
+                rngCell = table.Cell(1, k).Range;
+                int temp = k - 1;
+                rngCell.Text = temp.ToString();
+            }
+
+            // заполняем таблицу данными из матрицы Answers
+            for (int i = 2; i <= countStr; i++)
+            {
+                rngCell = table.Cell(i, 1).Range;
+                int temp = i - 1;
+                rngCell.Text = nameStr + " " + temp.ToString();
+                for (int j = 2; j <= countCol; j++)
+                {
+                    rngCell = table.Cell(i, j).Range;
+                    rngCell.Text = answers[i - 2, j - 2];
+                }
+            }
         }
     }
 
