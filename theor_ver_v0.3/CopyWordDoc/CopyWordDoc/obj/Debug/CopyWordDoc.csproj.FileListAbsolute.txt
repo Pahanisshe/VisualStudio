@@ -1,0 +1,11 @@
+F:\Кирилл\VisualStudioProjects\CopyWordDoc\CopyWordDoc\bin\Debug\CopyWordDoc.exe.config
+F:\Кирилл\VisualStudioProjects\CopyWordDoc\CopyWordDoc\bin\Debug\CopyWordDoc.exe
+F:\Кирилл\VisualStudioProjects\CopyWordDoc\CopyWordDoc\bin\Debug\CopyWordDoc.pdb
+F:\Кирилл\VisualStudioProjects\CopyWordDoc\CopyWordDoc\obj\Debug\CopyWordDoc.csprojAssemblyReference.cache
+F:\Кирилл\VisualStudioProjects\CopyWordDoc\CopyWordDoc\obj\Debug\CopyWordDoc.csproj.ResolveComReference.cache
+F:\Кирилл\VisualStudioProjects\CopyWordDoc\CopyWordDoc\obj\Debug\CopyWordDoc.Form1.resources
+F:\Кирилл\VisualStudioProjects\CopyWordDoc\CopyWordDoc\obj\Debug\CopyWordDoc.Properties.Resources.resources
+F:\Кирилл\VisualStudioProjects\CopyWordDoc\CopyWordDoc\obj\Debug\CopyWordDoc.csproj.GenerateResource.cache
+F:\Кирилл\VisualStudioProjects\CopyWordDoc\CopyWordDoc\obj\Debug\CopyWordDoc.csproj.CoreCompileInputs.cache
+F:\Кирилл\VisualStudioProjects\CopyWordDoc\CopyWordDoc\obj\Debug\CopyWordDoc.exe
+F:\Кирилл\VisualStudioProjects\CopyWordDoc\CopyWordDoc\obj\Debug\CopyWordDoc.pdb
